@@ -8,9 +8,7 @@
     * TargetASCII
 """
 
-from io import BytesIO
-from urllib.request import Request, urlopen
-from urllib.error import URLError
+import requests
 from zipfile import ZipFile
 from datetime import datetime
 import numpy as np
@@ -189,38 +187,46 @@ class AssetPack():
             return (None, "Problems creating new folder: " + folder)
         return (folder, "Okay")
 
-    def getAssetPack(self, url, save_path, filename, unzip=False):
+    def getAssetPack(self, url, save_path, filename, unzip=False, responsefunc=None):
         """
-        get URL and extract zipfile
+        get URL and extract zipfile if unzip is set to True, otherwise read normal file
+
+        :param str url: name of the URL to load
+        :param str save_path: path where the asset should be loaded
+        :param str filename: filename of the asset if give otherwise save_path is used
+        ;paran bool unzip: should pack be unzipped?
+        :param responsefunc: a function called (totalsize, bytesread) used to display progress or None
         :return: bool True if loaded and err or None
         """
         url = url.replace(' ', '%20')
-        try:
-            req = Request(url)
-        except Exception as err:
-            return (False, str(err))
 
-        try:
-            response = urlopen(req)
-        except URLError as e:
-            if hasattr(e, 'reason'):
-                err = 'URL: ' + url + ' ' +str(e.reason)
-                return (False, err)
-            elif hasattr(e, 'code'):
-                err = 'URL: ' + url + ' Error code: ' + str( e.code)
-                return (False, err)
-        else:
-            if not unzip:
-                outpath = os.path.join(save_path, filename) if filename else save_path
-                try:
-                    with open(outpath, mode="wb") as ifile:
-                        ifile.write(response.read())
-                except Exception as err:
-                    return (False, str(err))
-            else:
-                with ZipFile(BytesIO(response.read())) as zfile:
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            outpath = os.path.join(save_path, filename) if filename else save_path
+            try:
+                total_size = int(response.headers.get("content-length", 0))
+            except Exception as err:
+                return (False, str(err))
+
+            block_size = 1024
+            l = 0
+            try:
+                with open(outpath, "wb") as ofile:
+                    for data in response.iter_content(block_size):
+                        l += len(data)
+                        if responsefunc is not None:
+                            responsefunc (total_size, l)
+                        ofile.write(data)
+            except Exception as err:
+                return (False, str(err))
+
+            if total_size != 0 and l != total_size:
+                print ("Download failed", l, total_size)
+                return (False, "Download failed, bytes read: " + str(l) + " from " + str(total_size))
+
+            if unzip:
+                with ZipFile(outpath, "r") as zfile:
                     zfile.extractall(self.unzipdir)
-
         return (True, None)
 
     def getUrlFile(self, url, destination):

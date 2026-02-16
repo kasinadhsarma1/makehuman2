@@ -17,10 +17,21 @@ import json
 import argparse
 from core.importfiles import AssetPack, UserEnvironment
 
+global _LASTVAL
+
+def printProgress(total, l):
+    global _LASTVAL
+    v = 80 if total == 0 else (l / total) * 80
+    if v > _LASTVAL:
+        print("*", end="",flush=True)
+        _LASTVAL += 1
+
 if __name__ == '__main__':
 
     # get urls + name of standard mesh
     #
+    global _LASTVAL
+
     release_info = os.path.join("data", "makehuman2_version.json")
     if os.path.isfile(release_info):
         with open(release_info, 'r') as f:
@@ -94,15 +105,18 @@ if __name__ == '__main__':
         assets = AssetPack()
         tempdir =assets.tempDir()
         filename = os.path.split(path)[1]
-        (success, message) = assets.getAssetPack(source, tempdir, filename, unzip=True)
+        _LASTVAL = 0
+        print ("-" * 80)
+        (success, message) = assets.getAssetPack(source, tempdir, filename, unzip=True, responsefunc=printProgress)
         if not success:
             print (message)
             print ("Download from mirror (this takes forever, sorry):")
             print (sourcem)
-            (success, message) = assets.getAssetPack(sourcem, tempdir, filename, unzip=True)
+            (success, message) = assets.getAssetPack(sourcem, tempdir, filename, unzip=True, responsefunc=printProgress)
             if not success:
                 print ("Giving up, mirror does not get data")
                 exit (20)
+
         assets.copyAssets(tempdir, space, mesh, replace=not args.n)
         assets.cleanupUnzip()
 

@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 
 from PySide6.QtCore import Qt
 from gui.tablewindow import MHSelectAssetWindow
-from gui.common import ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHFileRequest
+from gui.common import ErrorBox, WorkerThread, MHBusyWindow, IconButton, MHFileRequest, MHProgWindow
 from opengl.texture import MH_Thumb
 from core.importfiles import AssetPack
 
@@ -239,12 +239,17 @@ class DownLoadImport(QVBoxLayout):
             self.bckproc.finishmsg = "Zip file has been imported"
             self.bckproc.finished.connect(self.finishUnzip)
 
+    def displayProgress(self, total_size, l):
+        if self.prog_window:
+            v = 1000 if total_size == 0 else (l / total_size) * 1000
+            self.prog_window.setValue(int(v))
+
     def par_download(self, bckproc, *args):
         tempdir = args[0][0]
         filename = args[0][1]
         self.error = None
         self.env.logLine(1, "Download " + filename + " to " + tempdir)
-        (err, text) = self.assets.getAssetPack(self.packname.text(), tempdir, filename)
+        (err, text) = self.assets.getAssetPack(self.packname.text(), tempdir, filename, unzip=False, responsefunc=self.displayProgress)
         self.error = text
 
     def finishLoad(self):
@@ -288,7 +293,8 @@ class DownLoadImport(QVBoxLayout):
             self.parent.glob.lastdownload = os.path.join(tempdir, filename)
             self.filename.setText(self.parent.glob.lastdownload)
             self.fnameinserted()
-            self.prog_window = MHBusyWindow("Download pack to " + tempdir, "loading ...")
+            self.prog_window = MHProgWindow("Download File", 1000)
+            self.prog_window.setLabelText("Download " + url + " to " + tempdir)
             self.prog_window.progress.forceShow()
             self.bckproc = WorkerThread(self.par_download, tempdir, filename)
             self.bckproc.start()
