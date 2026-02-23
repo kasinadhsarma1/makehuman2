@@ -305,17 +305,19 @@ class DownLoadImport(QVBoxLayout):
         destination = args[0][0]
         destination2 = args[0][1]
         self.error = None
-        (err, text) = self.assets.getUrlFile(self.env.release_info["url_assetlist"], destination)
-        self.error = text
-        if err is False:
-            return
-        (err, text) = self.assets.getUrlFile(self.env.release_info["url_assetpacklist"], destination2)
-        self.error = text
+        i = 0
+        for fname in  self.env.release_info["url_assetlist"],  self.env.release_info["url_assetpacklist"]:
+            dest = args[0][i]
+            self.prog_window.setValueAndText(0, "Download " + fname + " to " + dest)
+            loaded, text = self.assets.getUrlFile(fname, dest, responsefunc=self.displayProgress)
+            self.error = text
+            if loaded is False:
+                return
 
     def listDownLoad(self):
         if self.bckproc == None:
             self.assetjson = None       # reset this
-            self.prog_window = MHBusyWindow("Download list to " + self.assetlistpath, "loading ...")
+            self.prog_window = MHProgWindow("Download Lists", 1000)
             self.prog_window.progress.forceShow()
             self.bckproc = WorkerThread(self.par_listdownload, self.assetlistpath, self.assetpacklistpath)
             self.bckproc.start()
@@ -331,7 +333,7 @@ class DownLoadImport(QVBoxLayout):
             self.env.logLine(8, "Get: " + elem + " >" + destination)
             self.prog_window.setLabelText("Loading: " + elem)
             destpath = os.path.join(destination, dest)
-            (loaded, text) = self.assets.getUrlFile(elem, destpath)
+            loaded, text = self.assets.getUrlFile(elem, destpath)
             if loaded is False:
                 self.error = text
                 return

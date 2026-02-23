@@ -8,7 +8,7 @@
     * TargetASCII
 """
 
-import requests
+import urllib.request
 from zipfile import ZipFile
 from datetime import datetime
 import numpy as np
@@ -45,10 +45,10 @@ class UserEnvironment():
                 except ImportError:
                     platform_version = "Unknown"
         self.osindex = osindex
-        return (p, osindex, ostype, platform_version)
+        return p, osindex, ostype, platform_version
 
     def GetHardware(self):
-        return(platform.machine(), platform.processor(), platform.uname()[2])
+        return platform.machine(), platform.processor(), platform.uname()[2]
 
     def GetUserConfigFilenames(self, osindex=None, create=False):
         """
@@ -81,9 +81,9 @@ class UserEnvironment():
                 try:
                     os.mkdir(folder)
                 except:
-                    return (None, folder)
+                    return None, folder
 
-        return (os.path.join(folder, 'makehuman2.conf'), os.path.join(folder, 'makehuman2_session.conf'))
+        return os.path.join(folder, 'makehuman2.conf'), os.path.join(folder, 'makehuman2_session.conf')
         
 
 class AssetPack():
@@ -95,7 +95,7 @@ class AssetPack():
     def titleToFileName(self, title):
         fname = re.sub('[^a-z0-9 ]', '', title.lower()).strip()
         fname = fname.replace(" ", "_")
-        return(re.sub('__+', '_', fname))
+        return re.sub('__+', '_', fname)
 
     def createMaterialsFolder(self, path):
         #
@@ -108,8 +108,8 @@ class AssetPack():
             try:
                 os.mkdir(matfolder)
             except:
-                return (None, "Problems creating new folder: " + matfolder)
-        return (matfolder, "Okay")
+                return None, "Problems creating new folder: " + matfolder
+        return matfolder, "Okay"
 
     def testAssetList(self, path):
         if os.path.isfile(path):
@@ -143,7 +143,7 @@ class AssetPack():
 
                     item["folder"] = folder
 
-        return(json)
+        return json
 
     def alistGetFiles(self, json, key):
         flist = []
@@ -162,7 +162,7 @@ class AssetPack():
             # no subfolder, but name is plural
             #
             folder =os.path.join(path, mtype+"s", base)
-            return(folder, "Okay")
+            return folder, "Okay"
 
         elif mtype == "skin" or mtype == "rig":
             # folder name is plural
@@ -172,7 +172,7 @@ class AssetPack():
             sub = title.split("/")[0]
             folder =os.path.join(path, mtype, base, sub)
             if os.path.isdir(folder):
-                return (folder, "Okay")
+                return folder, "Okay"
         else:
             # proxy and all type of clothes
             folder =os.path.join(path, mtype, base, title)
@@ -180,12 +180,12 @@ class AssetPack():
         # subfolder needed
         #
         if os.path.isdir(folder) and  mtype != "target":
-            return (None, "Destination folder already existent: " + folder)
+            return None, "Destination folder already existent: " + folder
         try:
             os.mkdir(folder)
         except:
-            return (None, "Problems creating new folder: " + folder)
-        return (folder, "Okay")
+            return None, "Problems creating new folder: " + folder
+        return folder, "Okay"
 
     def getAssetPack(self, url, save_path, filename, unzip=False, responsefunc=None):
         """
@@ -200,47 +200,59 @@ class AssetPack():
         """
         url = url.replace(' ', '%20')
 
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            outpath = os.path.join(save_path, filename) if filename else save_path
-            try:
-                total_size = int(response.headers.get("content-length", 0))
-            except Exception as err:
-                return (False, str(err))
+        try:
+            request = urllib.request.Request(url)
+        except Exception as err:
+            return False, str(err)
 
-            block_size = 1024
-            l = 0
-            try:
-                with open(outpath, "wb") as ofile:
-                    for data in response.iter_content(block_size):
-                        l += len(data)
-                        if responsefunc is not None:
-                            responsefunc (total_size, l)
-                        ofile.write(data)
-            except Exception as err:
-                return (False, str(err))
+        try:
+            response = urllib.request.urlopen(request)
+        except Exception as err:
+            return False, str(err)
 
-            if total_size != 0 and l < total_size:
-                print ("Download failed", l, total_size)
-                return (False, "Download failed, bytes read: " + str(l) + " from " + str(total_size))
+        meta = response.info()
+        total_size = int(meta.get("content-length", 0))
+        # print ("Total size is: ", total_size)
 
-            if unzip:
-                with ZipFile(outpath, "r") as zfile:
-                    zfile.extractall(self.unzipdir)
-        return (True, None)
+        outpath = os.path.join(save_path, filename) if filename else save_path
 
-    def getUrlFile(self, url, destination):
-        return (self.getAssetPack(url, destination, None, unzip=False))
+        chunk_size = 8192
+        l = 0
+        try:
+            with open(outpath, "wb") as ofile:
+                 while True:
+                    data = response.read(chunk_size)
+                    if len(data) < 1:
+                        break
+                    l += len(data)
+                    if responsefunc is not None:
+                        responsefunc (total_size, l)
+                    ofile.write(data)
+
+        except Exception as err:
+            return False, str(err)
+
+        if total_size != 0 and l < total_size:
+            print ("Download failed", l, total_size)
+            return False, "Download failed, bytes read: " + str(l) + " from " + str(total_size)
+
+        if unzip:
+            with ZipFile(outpath, "r") as zfile:
+                zfile.extractall(self.unzipdir)
+        return True, None
+
+    def getUrlFile(self, url, destination, responsefunc=None):
+        return self.getAssetPack(url, destination, None, unzip=False, responsefunc=responsefunc)
 
     def tempDir(self):
         self.unzipdir = tempfile.mkdtemp(prefix="mh_")
-        return (self.unzipdir)
+        return self.unzipdir
 
     def unZip(self, zipfile):
         self.tempDir()
         with ZipFile(zipfile,"r") as zip_ref:
             zip_ref.extractall(self.unzipdir)
-        return(self.unzipdir)
+        return self.unzipdir
 
     def cleanupUnzip(self):
         if self.unzipdir is not None:
@@ -315,7 +327,7 @@ class TargetASCII():
         try:
             fd = open(filename, 'r', encoding='utf-8')
         except:
-            return (False, None)
+            return False, None
         else:
             for line in fd:
                 line = line.strip()
@@ -327,7 +339,7 @@ class TargetASCII():
                 vertIndex = int(translationData[0])
                 translationVector = (float(translationData[1]), float(translationData[2]), float(translationData[3]))
                 data.append((vertIndex, translationVector))
-            return(True, np.asarray(data, dtype=dtype))
+            return True, np.asarray(data, dtype=dtype)
 
     def allowToWrite(self, filename):
         try:
@@ -349,7 +361,7 @@ class TargetASCII():
                 if name.endswith(".target"):
                     result.append(os.path.join(root, name))
 
-        return(result)
+        return result
 
     def loadAllTargets(self, path, verbose=0):
         content = {}
