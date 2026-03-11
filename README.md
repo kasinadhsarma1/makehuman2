@@ -105,7 +105,7 @@ On first startup and when not started before makehuman2 will ask you for your wo
 
 Makehuman can work with two asset folders, one is called system folder, which is the place, where makehuman itself is installed and one is your user folder.
 
-All further changes can be made in preferences later. Especially you since most people work with an hm08 mesh, select this as a your current base mesh.
+All further changes can be made in preferences later. Especially since most people work with an hm08 mesh, select this as a your current base mesh.
 
 When you exit Makehuman2 the preferences will be written to a configuration file which is used for all applications. It will even stay, when you re-install makehuman2.
 
