@@ -109,10 +109,11 @@ class ppaBuilder():
                 line = ".\n"
             line = re.sub("<.+?>", "", line)
             if l > 0:
-                out += " " + line
+                if line.strip():
+                    out += " " + line
             else:
                 out += line
-            l += 1
+                l += 1
         return out
 
     def createControlFile(self, name):
@@ -128,8 +129,7 @@ Depends: {self.dependencies}
 Suggests: blender
 Provides: makehuman
 {replaces}Architecture: all
-Description: {descr}
-        """
+Description: {descr}"""
         with open(name, "w") as f:
             f.write(text)
 
