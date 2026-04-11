@@ -2,6 +2,9 @@
 import os
 import json
 import argparse
+
+os.environ['MAKEHUMAN2TOOL'] = str(True)
+
 from core.environ import UserEnvironment
 from core.importfiles import TargetASCII
 

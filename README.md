@@ -181,6 +181,7 @@ Currently syntax is like this:
           -V, --version         Show version and License
           --nomultisampling     disable multisampling (used to display multi transparent layers)
                                 without multisampling normal blend function is used
+          --noskybox            Some systems, like Linux Mesa are not able to work with skybox. Use this flag to switch skybox off.
           -l                    force to write to log file
           -b BASE, --base BASE  preselect base mesh use 'none' for no preselection
           -r, --repository      create a new database repository. It is needed when repository seems to have

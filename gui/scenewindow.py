@@ -114,6 +114,7 @@ class MHSceneWindow(QWidget):
 
         self.skybox = QPushButton("Skybox")
         self.skybox.setCheckable(True)
+        self.skybox.setEnabled(not self.env.noskybox)
         self.skybox.clicked.connect(self.setSkybox)
         vlayout.addWidget(self.skybox)
 
@@ -126,6 +127,7 @@ class MHSceneWindow(QWidget):
 
         vlayout.addWidget(self.skyboxSelect)
         b = QPushButton("Select")
+        b.setEnabled(not self.env.noskybox)
         b.clicked.connect(self.changeSkyboxName)
         vlayout.addWidget(b)
 
@@ -228,22 +230,23 @@ class MHSceneWindow(QWidget):
     def xzdisplay(self, x,y ):
         x = (x - 0.5 ) * 100 / self._volume[0]
         y = (y - 0.5 ) * 100 / self._volume[2]
-        return (f"Position:\nX: {x:.2f}\nZ: {y:.2f}")
+        return f"Position:\nX: {x:.2f}\nZ: {y:.2f}"
 
     def vec4ToCol(self, vec4):
         color = QColor.fromRgbF(vec4.x(), vec4.y(), vec4.z())
-        return(color)
+        return color
 
     def changeSkybox(self, name, oldname):
-        if name != oldname:
-            self.light.skyboxname = name
-            self._lastselectedskybox = name
-            s = self.light.skybox 
-            self.light.skybox = False
-            self.view.skybox.delete()
-            self.view.skybox.create(name)
-            self.light.skybox = s
-            self.view.Tweak()
+        if self.env.noskybox or name == oldname:
+            return
+        self.light.skyboxname = name
+        self._lastselectedskybox = name
+        s = self.light.skybox
+        self.light.skybox = False
+        self.view.skybox.delete()
+        self.view.skybox.create(name)
+        self.light.skybox = s
+        self.view.Tweak()
 
     def changeFloor(self, name, oldname):
         if name != oldname:

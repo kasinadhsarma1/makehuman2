@@ -254,8 +254,12 @@ class OpenGLView(QOpenGLWidget):
         # create environment
         #
         shader = self.mh_shaders.getShader("skybox")
-        self.skybox = OpenGLSkyBox(self.glob, shader, self.glfunc)
-        if self.skybox.create(self.light.skyboxname) is False:
+
+        if self.env.noskybox is False:
+            self.skybox = OpenGLSkyBox(self.glob, shader, self.glfunc)
+            if self.skybox.create(self.light.skyboxname) is False:
+                self.skybox = None
+        else:
             self.skybox = None
 
 

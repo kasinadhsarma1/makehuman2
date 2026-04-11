@@ -9,12 +9,12 @@
 import os
 import sys
 import numpy as np 
+
 from obj3d.fops_binary import exportObj3dBinary, importObjFromFile
 
 # only import material when not used for mesh compiler
 #
-__bname__ = os.path.basename(sys.argv[0])
-if not __bname__.startswith("compile_meshes"):
+if not ('MAKEHUMAN2TOOL' in os.environ and os.environ['MAKEHUMAN2TOOL'] == "True"):
     from opengl.material import Material
 
 class object3d:
@@ -90,7 +90,7 @@ class object3d:
         """
         self.filename = path
         (success, text) = importObjFromFile(path, self, use_obj)
-        if success > 0 and not __bname__.startswith("compile_meshes"):
+        if success > 0 and not ('MAKEHUMAN2TOOL' in os.environ and os.environ['MAKEHUMAN2TOOL'] == "True"):
             self.initMaterial()
         return success, text
 

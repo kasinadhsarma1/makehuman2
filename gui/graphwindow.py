@@ -176,10 +176,11 @@ class MHGraphicWindow(QWidget):
         if self.glob.baseClass is not None and self.glob.baseClass.hide_verts is False:
             self.buttons[10][0].setChecked(True)
 
-        # skybox and perspective are checked
+        # skybox and perspective are checked, skybox can be disabled
         #
         self.buttons[14][0].setChecked(True)
-        self.buttons[15][0].setChecked(True)
+        self.buttons[15][0].setChecked(not self.env.noskybox)
+        self.buttons[15][0].setEnabled(not self.env.noskybox)
 
         vlayout.addLayout(glayout)
 
@@ -324,7 +325,7 @@ class MHGraphicWindow(QWidget):
         vlayout.addStretch()
         self.objInfos(vlayout)
         hlayout.addLayout(vlayout)
-        return (hlayout)
+        return hlayout
 
     def back_button(self):
         self.view.customView(QVector3D(0, 0, -1))

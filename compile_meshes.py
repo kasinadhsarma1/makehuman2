@@ -3,6 +3,8 @@ import os
 import json
 import argparse
 
+os.environ['MAKEHUMAN2TOOL'] = str(True)
+
 from core.environ import UserEnvironment
 from core.attached_asset import attachedAsset
 from obj3d.object3d import object3d

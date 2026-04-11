@@ -220,6 +220,7 @@ class programInfo():
         self.verbose = args.verbose
         self.admin = args.admin
         self.noalphacover = args.nomultisampling    # in reality it means not to use alpha to coverage
+        self.noskybox = args.noskybox               # do not use skybox in rendering
         self.recreate_repo = args.repository
         self.uselog  = args.l
         self.frozen  = frozen
