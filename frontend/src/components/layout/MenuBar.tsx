@@ -78,16 +78,16 @@ function Dropdown({ items, onClose }: { items: MenuItem[]; onClose: () => void }
           <button
             key={i}
             onClick={() => { item.action?.(); onClose(); }}
-            className={`w-full text-left ${menuBarPatterns.dropdown.item}`}
+            className={`w-full ${menuBarPatterns.dropdown.item}`}
           >
             {item.checkable ? (
               item.checked
-                ? <CheckSquare className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-                : <Square className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+                ? <CheckSquare className="w-3 h-3 text-violet-400 shrink-0" />
+                : <Square className="w-3 h-3 text-zinc-600 shrink-0" />
             ) : item.icon ? (
               <span className={menuBarPatterns.dropdown.itemIcon}>{item.icon}</span>
             ) : (
-              <span className="w-3.5 h-3.5 shrink-0" />
+              <span className="w-3 h-3 shrink-0" />
             )}
             {item.label}
           </button>

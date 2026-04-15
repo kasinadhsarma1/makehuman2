@@ -69,7 +69,7 @@ export function Viewport({
         <div className="flex-1" />
 
         {connected && (
-          <div className={viewportPatterns.hud.topRight}>
+          <div className="ml-auto flex items-center gap-1">
             <button
               onClick={onGetChar}
               disabled={loadingGetChar}
@@ -181,9 +181,9 @@ export function Viewport({
                   {charJsonKeys.slice(0, 6).map((key) => (
                     <div
                       key={key}
-                      className="text-center py-2 px-3 rounded-lg bg-white/[0.03] border border-white/[0.05]"
+                      className="flex items-center justify-center py-2 px-3 rounded-lg bg-white/[0.03] border border-white/[0.05]"
                     >
-                      <span className={`${typographyPatterns.mono} capitalize`}>{key}</span>
+                      <span className={`${typographyPatterns.mono} capitalize text-center`}>{key}</span>
                     </div>
                   ))}
                 </div>

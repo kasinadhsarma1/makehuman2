@@ -3,9 +3,20 @@
  *
  * Base URL resolution order:
  *   1. NEXT_PUBLIC_MH2_API_URL env var  (e.g. "http://127.0.0.1:8000")
- *   2. Constructed from host + MH2_API_PORT (default 8000) at call-time via createApiClient()
- *   3. "" (empty) → falls through to Next.js dev-mode proxy on /api/v1/*
+ *   2. Constructed from host + port via createApiClient()
+ *   3. "" (empty) → uses Next.js dev-mode proxy on /api/v1/*
+ *
+ * Every fetch has an AbortController timeout so a dead backend never hangs
+ * the UI.  Health/info probes use HEALTH_TIMEOUT_MS (3 s); everything else
+ * uses DEFAULT_TIMEOUT_MS (8 s).
  */
+
+// ─── Timeout constants ────────────────────────────────────────────────────────
+
+/** Short timeout for liveness probes that run on every connect attempt. */
+export const HEALTH_TIMEOUT_MS = 3_000;
+/** Default timeout for data operations (morph load, asset list, export…). */
+export const DEFAULT_TIMEOUT_MS = 8_000;
 
 // ─── HTTP helpers ─────────────────────────────────────────────────────────────
 
@@ -14,20 +25,38 @@ async function request<T>(
   method: string,
   path: string,
   body?: unknown,
+  timeoutMs: number = DEFAULT_TIMEOUT_MS,
 ): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
   const url = `${base}/api/v1${path}`;
-  const res = await fetch(url, {
-    method,
-    headers: body !== undefined ? { "Content-Type": "application/json" } : {},
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(`${method} ${path} → ${res.status}: ${text}`);
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: body !== undefined ? { "Content-Type": "application/json" } : {},
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => res.statusText);
+      throw new Error(`${method} ${path} → ${res.status}: ${text}`);
+    }
+
+    // 204 No Content — return undefined rather than trying to parse JSON
+    if (res.status === 204) return undefined as T;
+
+    return res.json() as Promise<T>;
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(`${method} ${path} timed out after ${timeoutMs}ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
   }
-  // 204 No Content
-  if (res.status === 204) return undefined as T;
-  return res.json() as Promise<T>;
 }
 
 // ─── Response / model types ───────────────────────────────────────────────────
@@ -154,102 +183,103 @@ export class MhApiClient {
     this.base = base.replace(/\/$/, "");
   }
 
-  private get = <T>(path: string)                      => request<T>(this.base, "GET",    path);
-  private post = <T>(path: string, body?: unknown)     => request<T>(this.base, "POST",   path, body);
-  private put  = <T>(path: string, body?: unknown)     => request<T>(this.base, "PUT",    path, body);
-  private patch = <T>(path: string, body?: unknown)    => request<T>(this.base, "PATCH",  path, body);
-  private del  = <T>(path: string)                     => request<T>(this.base, "DELETE", path);
+  // HTTP verbs — each accepts an optional per-call timeout override
+  private _get   = <T>(path: string, ms?: number) => request<T>(this.base, "GET",    path, undefined, ms);
+  private _post  = <T>(path: string, body?: unknown, ms?: number) => request<T>(this.base, "POST",   path, body, ms);
+  private _put   = <T>(path: string, body?: unknown, ms?: number) => request<T>(this.base, "PUT",    path, body, ms);
+  private _patch = <T>(path: string, body?: unknown, ms?: number) => request<T>(this.base, "PATCH",  path, body, ms);
+  private _del   = <T>(path: string, ms?: number) => request<T>(this.base, "DELETE", path, undefined, ms);
 
-  // ── Info ────────────────────────────────────────────────────────────────────
+  // ── Info (fast health-check timeouts) ─────────────────────────────────────
 
-  health = () => this.get<HealthResponse>("/health");
-  info   = () => this.get<AppInfo>("/info");
-  config = () => this.get<Record<string, unknown>>("/info/config");
+  health = () => this._get<HealthResponse>("/health", HEALTH_TIMEOUT_MS);
+  info   = () => this._get<AppInfo>("/info",          HEALTH_TIMEOUT_MS);
+  config = () => this._get<Record<string, unknown>>("/info/config", HEALTH_TIMEOUT_MS);
 
-  // ── Character ───────────────────────────────────────────────────────────────
+  // ── Character ─────────────────────────────────────────────────────────────
 
   character = {
-    get:      ()                                         => this.get<CharacterInfo>("/character"),
-    list:     ()                                         => this.get<CharacterInfo[]>("/character/list"),
-    create:   ()                                         => this.post<CharacterInfo>("/character/new"),
-    load:     (path: string)                             => this.post<CharacterInfo>("/character/load", { path }),
-    save:     (path: string)                             => this.post<{ path: string }>("/character/save", { path }),
-    randomize:(body?: { mode?: number; seed?: number })  => this.post<CharacterInfo>("/character/randomize", body ?? {}),
-    delete:   ()                                         => this.del<{ ok: boolean }>("/character"),
+    get:      ()                                         => this._get<CharacterInfo>("/character"),
+    list:     ()                                         => this._get<CharacterInfo[]>("/character/list"),
+    create:   ()                                         => this._post<CharacterInfo>("/character/new"),
+    load:     (path: string)                             => this._post<CharacterInfo>("/character/load", { path }),
+    save:     (path: string)                             => this._post<{ path: string }>("/character/save", { path }),
+    randomize:(body?: { mode?: number; seed?: number })  => this._post<CharacterInfo>("/character/randomize", body ?? {}),
+    delete:   ()                                         => this._del<{ ok: boolean }>("/character"),
   };
 
-  // ── Morphs ──────────────────────────────────────────────────────────────────
+  // ── Morphs ────────────────────────────────────────────────────────────────
 
   morphs = {
     list:       (category?: string) =>
-      this.get<MorphModifier[]>(`/morphs${category ? `?category=${encodeURIComponent(category)}` : ""}`),
-    categories: ()                  => this.get<MorphCategory[]>("/morphs/categories"),
-    modified:   ()                  => this.get<MorphModifier[]>("/morphs/modified"),
-    values:     ()                  => this.get<Record<string, number>>("/morphs/values"),
-    get:        (path: string)      => this.get<MorphModifier>(`/morphs/${encodeURIComponent(path)}`),
+      this._get<MorphModifier[]>(`/morphs${category ? `?category=${encodeURIComponent(category)}` : ""}`),
+    categories: ()                  => this._get<MorphCategory[]>("/morphs/categories"),
+    modified:   ()                  => this._get<MorphModifier[]>("/morphs/modified"),
+    values:     ()                  => this._get<Record<string, number>>("/morphs/values"),
+    get:        (path: string)      => this._get<MorphModifier>(`/morphs/${encodeURIComponent(path)}`),
     set:        (path: string, value: number) =>
-      this.put<MorphModifier>(`/morphs/${encodeURIComponent(path)}`, { value }),
+      this._put<MorphModifier>(`/morphs/${encodeURIComponent(path)}`, { value }),
     batch:      (updates: MorphBatchUpdate) =>
-      this.post<MorphModifier[]>("/morphs/batch", updates),
-    reset:      ()                  => this.post<{ ok: boolean }>("/morphs/reset"),
+      this._post<MorphModifier[]>("/morphs/batch", updates),
+    reset:      ()                  => this._post<{ ok: boolean }>("/morphs/reset"),
   };
 
-  // ── Assets ──────────────────────────────────────────────────────────────────
+  // ── Assets ────────────────────────────────────────────────────────────────
 
   assets = {
     list:         (assetType?: string) =>
-      this.get<AssetModel[]>(`/assets${assetType ? `?asset_type=${assetType}` : ""}`),
-    equipment:    ()                   => this.get<EquipmentState>("/assets/equipment"),
-    baseMeshes:   ()                   => this.get<string[]>("/assets/base-meshes"),
-    rebuildCache: ()                   => this.post<{ ok: boolean }>("/assets/rebuild-cache"),
-    byType:       (type: string)       => this.get<AssetModel[]>(`/assets/${type}`),
+      this._get<AssetModel[]>(`/assets${assetType ? `?asset_type=${assetType}` : ""}`),
+    equipment:    ()                   => this._get<EquipmentState>("/assets/equipment"),
+    baseMeshes:   ()                   => this._get<string[]>("/assets/base-meshes"),
+    rebuildCache: ()                   => this._post<{ ok: boolean }>("/assets/rebuild-cache"),
+    byType:       (type: string)       => this._get<AssetModel[]>(`/assets/${type}`),
     apply:        (type: string, name: string, uuid?: string) =>
-      this.post<EquipmentState>(`/assets/${type}/apply`, { name, uuid }),
+      this._post<EquipmentState>(`/assets/${type}/apply`, { name, uuid }),
     remove:       (type: string, name: string) =>
-      this.del<EquipmentState>(`/assets/${type}/${encodeURIComponent(name)}`),
-    setSkin:      (name: string)       => this.post<{ ok: boolean }>("/assets/skin", { name }),
-    clearAll:     ()                   => this.del<{ ok: boolean }>("/assets/equipment"),
+      this._del<EquipmentState>(`/assets/${type}/${encodeURIComponent(name)}`),
+    setSkin:      (name: string)       => this._post<{ ok: boolean }>("/assets/skin", { name }),
+    clearAll:     ()                   => this._del<{ ok: boolean }>("/assets/equipment"),
   };
 
-  // ── Skeleton ─────────────────────────────────────────────────────────────────
+  // ── Skeleton ──────────────────────────────────────────────────────────────
 
   skeleton = {
-    get:       ()                                => this.get<SkeletonModel>("/skeleton"),
-    list:      ()                                => this.get<string[]>("/skeleton/list"),
-    load:      (name: string)                    => this.post<SkeletonModel>("/skeleton/load", { name }),
-    poses:     ()                                => this.get<PoseModel[]>("/skeleton/poses"),
-    getPose:   ()                                => this.get<PoseModel>("/skeleton/pose"),
-    setPose:   (name: string)                    => this.post<PoseModel>("/skeleton/pose", { name }),
+    get:       ()                                => this._get<SkeletonModel>("/skeleton"),
+    list:      ()                                => this._get<string[]>("/skeleton/list"),
+    load:      (name: string)                    => this._post<SkeletonModel>("/skeleton/load", { name }),
+    poses:     ()                                => this._get<PoseModel[]>("/skeleton/poses"),
+    getPose:   ()                                => this._get<PoseModel>("/skeleton/pose"),
+    setPose:   (name: string)                    => this._post<PoseModel>("/skeleton/pose", { name }),
     setBone:   (bone: string, rotation: number[]) =>
-      this.put<{ ok: boolean }>("/skeleton/pose/bone", { bone, rotation }),
-    resetPose: ()                                => this.del<{ ok: boolean }>("/skeleton/pose"),
+      this._put<{ ok: boolean }>("/skeleton/pose/bone", { bone, rotation }),
+    resetPose: ()                                => this._del<{ ok: boolean }>("/skeleton/pose"),
   };
 
-  // ── Export ───────────────────────────────────────────────────────────────────
+  // ── Export ────────────────────────────────────────────────────────────────
 
   export = {
-    mhm:  (req: ExportRequest) => this.post<{ path: string }>("/export/mhm",  req),
-    obj:  (req: ExportRequest) => this.post<{ path: string }>("/export/obj",  req),
-    stl:  (req: ExportRequest) => this.post<{ path: string }>("/export/stl",  req),
-    gltf: (req: ExportRequest) => this.post<{ path: string }>("/export/gltf", req),
-    bvh:  (req: ExportRequest) => this.post<{ path: string }>("/export/bvh",  req),
+    mhm:  (req: ExportRequest) => this._post<{ path: string }>("/export/mhm",  req),
+    obj:  (req: ExportRequest) => this._post<{ path: string }>("/export/obj",  req),
+    stl:  (req: ExportRequest) => this._post<{ path: string }>("/export/stl",  req),
+    gltf: (req: ExportRequest) => this._post<{ path: string }>("/export/gltf", req),
+    bvh:  (req: ExportRequest) => this._post<{ path: string }>("/export/bvh",  req),
   };
 
-  // ── Materials ────────────────────────────────────────────────────────────────
+  // ── Materials ─────────────────────────────────────────────────────────────
 
   materials = {
-    list:   ()                                           => this.get<MaterialModel[]>("/materials"),
-    get:    (name: string)                               => this.get<MaterialModel>(`/materials/${encodeURIComponent(name)}`),
-    load:   (path: string)                               => this.post<MaterialModel>("/materials/load", { path }),
+    list:   ()                                           => this._get<MaterialModel[]>("/materials"),
+    get:    (name: string)                               => this._get<MaterialModel>(`/materials/${encodeURIComponent(name)}`),
+    load:   (path: string)                               => this._post<MaterialModel>("/materials/load", { path }),
     update: (name: string, body: Partial<MaterialModel>) =>
-      this.patch<MaterialModel>(`/materials/${encodeURIComponent(name)}`, body),
+      this._patch<MaterialModel>(`/materials/${encodeURIComponent(name)}`, body),
   };
 
-  // ── Mesh ─────────────────────────────────────────────────────────────────────
+  // ── Mesh ──────────────────────────────────────────────────────────────────
 
   mesh = {
-    summary:    () => this.get<MeshSummary>("/mesh/summary"),
-    baseMeshes: () => this.get<string[]>("/mesh/base-meshes"),
+    summary:    () => this._get<MeshSummary>("/mesh/summary"),
+    baseMeshes: () => this._get<string[]>("/mesh/base-meshes"),
   };
 }
 

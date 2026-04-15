@@ -143,7 +143,6 @@ export function RigsPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Rigs :: filter</SectionTitle>
       <FilterSearch value={filter} onChange={onFilterChange} placeholder="filter rigs…" />
       <AssetList
         items={rigs.filter((r) => !filter || r.toLowerCase().includes(filter.toLowerCase()))}
@@ -181,7 +180,6 @@ export function PosesPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Poses :: filter</SectionTitle>
       <FilterSearch value={filter} onChange={onFilterChange} placeholder="filter poses…" />
       <AssetList
         items={poses.filter((p) => !filter || p.toLowerCase().includes(filter.toLowerCase()))}
@@ -245,7 +243,6 @@ export function AnimPlayerPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Animation Player</SectionTitle>
 
       {/* Animation info */}
       <div className="px-3 py-2 rounded bg-black/20 border border-white/[0.06]">
@@ -380,7 +377,6 @@ export function ExpressionsPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Expressions :: filter</SectionTitle>
       <FilterSearch value={filter} onChange={onFilterChange} placeholder="filter expressions…" />
       <AssetList
         items={expressions.filter(
@@ -534,7 +530,6 @@ export function ExpressionEditorPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Expressions :: editor</SectionTitle>
       <p className="text-[10px] text-zinc-500">Expression category:</p>
       <PoseEditorTree
         categories={FACE_CATEGORIES}
@@ -590,7 +585,6 @@ export function PoseEditorPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Pose :: editor</SectionTitle>
       <p className="text-[10px] text-zinc-500">Pose category:</p>
       <PoseEditorTree
         categories={BODY_CATEGORIES}

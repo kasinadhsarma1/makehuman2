@@ -238,7 +238,6 @@ export function ModellingPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Modify character :: categories</SectionTitle>
       <CategoryTree selected={selectedCategory} onSelect={onSelectCategory} />
       <ModelButtons
         symActive={symActive}
@@ -294,7 +293,6 @@ export function RandomizePanel({
 
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Random character :: parameters</SectionTitle>
 
       {/* Gender */}
       <div className="flex flex-col gap-1">

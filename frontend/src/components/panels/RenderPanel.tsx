@@ -91,10 +91,6 @@ export function RenderPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[10px] uppercase tracking-widest font-semibold text-zinc-500">
-        Rendering :: parameters
-      </p>
-
       {/* Canvas size */}
       <div>
         <p className="text-[10px] text-zinc-500 mb-1.5">

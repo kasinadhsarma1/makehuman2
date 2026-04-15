@@ -53,8 +53,8 @@ export const menuBarPatterns = {
   // Dropdown panel
   dropdown: {
     panel: "absolute top-full left-0 mt-0.5 min-w-[160px] bg-[#1a1a1a] border border-white/[0.09] rounded shadow-xl z-50 py-1",
-    item: "flex items-center justify-between px-3 py-1 text-[10px] text-zinc-300 hover:bg-white/[0.07] hover:text-zinc-100 cursor-default transition-colors",
-    itemIcon: "w-3 h-3 mr-2 text-zinc-600",
+    item: "flex items-center gap-2 px-3 py-1 text-[10px] text-zinc-300 hover:bg-white/[0.07] hover:text-zinc-100 cursor-default transition-colors",
+    itemIcon: "w-3 h-3 shrink-0 text-zinc-500",
     itemShortcut: "text-[9px] text-zinc-600 ml-4",
     separator: "my-1 border-t border-white/[0.06]",
     sectionLabel: "px-3 py-0.5 text-[9px] text-zinc-600 uppercase tracking-wider",

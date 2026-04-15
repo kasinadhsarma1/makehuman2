@@ -46,17 +46,48 @@ const EQUIP_TYPES: Record<number, string> = {
 const KNOWN_BASE_MESHES = ["hm08", "mh2bot"];
 const DEFAULT_API_PORT = 8000;
 
+// ─── localStorage helpers ─────────────────────────────────────────────────────
+
+const LS_KEY = "mh2:session";
+
+interface PersistedSession {
+  host: string;
+  port: number;
+  characterName: string;
+  exportData: ExportFormData;
+}
+
+function loadSession(): Partial<PersistedSession> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? (JSON.parse(raw) as Partial<PersistedSession>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveSession(data: Partial<PersistedSession>) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  } catch {
+    // storage quota exceeded or private-browsing restriction — ignore
+  }
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function Home() {
 
   // ── Connection (IPC / socket layer) ────────────────────────────────────────
-  const [host, setHost] = useState("127.0.0.1");
-  const [port, setPort] = useState(12345);
+  // Hydrate connection settings and last-known character name from localStorage
+  // so the UI is not blank on first paint even when offline.
+  const [host, setHost] = useState(() => loadSession().host ?? "127.0.0.1");
+  const [port, setPort] = useState(() => loadSession().port ?? 12345);
   const [apiPort] = useState(DEFAULT_API_PORT);
   const [status, setStatus] = useState<ConnectionStatus>("disconnected");
   const [appName, setAppName] = useState("");
-  const [characterName, setCharName] = useState("");
+  const [characterName, setCharName] = useState(() => loadSession().characterName ?? "");
   const [connectionError, setConnErr] = useState<string | null>(null);
   const [loadingConnect, setLoadConn] = useState(false);
 
@@ -80,7 +111,9 @@ export default function Home() {
   const [viewState, setViewState] = useState<ViewState>(DEFAULT_VIEW_STATE);
 
   // ── Export form (shared between LeftPanel and ContextPanel) ───────────────
-  const [exportData, setExportData] = useState<ExportFormData>(DEFAULT_EXPORT_FORM);
+  const [exportData, setExportData] = useState<ExportFormData>(
+    () => ({ ...DEFAULT_EXPORT_FORM, ...loadSession().exportData }),
+  );
   const handleExportChange = useCallback((patch: Partial<ExportFormData>) => {
     setExportData((d) => ({ ...d, ...patch }));
   }, []);
@@ -91,6 +124,13 @@ export default function Home() {
     setCtxState((s) => ({ ...s, ...patch }));
   }, []);
 
+  // ── Persist session to localStorage ───────────────────────────────────────
+  // Runs whenever connection settings, character name, or export prefs change.
+  // This keeps offline mode populated with last-known values across restarts.
+  useEffect(() => {
+    saveSession({ host, port, characterName, exportData });
+  }, [host, port, characterName, exportData]);
+
   // ── Activate toggles ───────────────────────────────────────────────────────
   const [socketActive, setSocketActive] = useState(false);
   const [diamondSkeleton, setDiamondSkeleton] = useState(false);
@@ -100,7 +140,11 @@ export default function Home() {
   // ── Status log ────────────────────────────────────────────────────────────
   const [statusMsg, setStatusMsg] = useState("");
 
-  const isElectron = typeof window !== "undefined" && !!window.mh;
+  // Detect Electron IPC bridge — must be done client-side only to avoid SSR hydration mismatch
+  const [isElectron, setIsElectron] = useState(false);
+  useEffect(() => {
+    setIsElectron(!!window.mh);
+  }, []);
   const connOpts = useCallback(() => ({ host, port }), [host, port]);
 
   // When tool mode changes, reset category to 0
@@ -228,6 +272,11 @@ export default function Home() {
   ]);
 
   // ─── Connect ───────────────────────────────────────────────────────────────
+  //
+  // IPC (5 s timeout set in Electron main.js) and REST (3 s via api.health())
+  // run IN PARALLEL via Promise.allSettled so the total wait is
+  //   max(ipc_timeout, rest_timeout) = 5 s
+  // instead of the previous sequential 5 s + 3 s = 8 s worst case.
 
   const handleConnect = useCallback(async () => {
     setLoadConn(true);
@@ -235,66 +284,64 @@ export default function Home() {
     setConnErr(null);
     setStatusMsg("Connecting…");
 
-    let ipcOk = false;
-    let restOk = false;
+    // Build the two channel promises concurrently
+    const ipcPromise = isElectron
+      ? window.mh!.hello(connOpts())
+      : Promise.reject(new Error("Not running in Electron"));
 
-    // 1. Try Electron IPC (Python core TCP socket)
-    if (isElectron) {
-      try {
-        const res = await window.mh!.hello(connOpts());
-        if (res.ok && res.data) {
-          setAppName(res.data.application);
-          setCharName(res.data.name);
-          ipcOk = true;
-        } else {
-          setConnErr(res.error ?? "IPC connection failed");
-        }
-      } catch (e) {
-        setConnErr(String(e));
-      }
+    const restPromise = api.health(); // 3 s AbortController timeout
+
+    const [ipcSettled, restSettled] = await Promise.allSettled([
+      ipcPromise,
+      restPromise,
+    ]);
+
+    const ipcOk = ipcSettled.status === "fulfilled" && ipcSettled.value.ok;
+    const restOk = restSettled.status === "fulfilled";
+
+    // Apply IPC result
+    if (ipcOk) {
+      setAppName(ipcSettled.value.data!.application);
+      setCharName(ipcSettled.value.data!.name);
+    } else if (ipcSettled.status === "fulfilled" && !ipcSettled.value.ok) {
+      setConnErr(ipcSettled.value.error ?? "IPC connection failed");
     }
 
-    // 2. Try FastAPI REST backend (independent of IPC)
-    try {
-      const health = await api.health();
+    // Apply REST result
+    if (restOk) {
       setBackendOnline(true);
-      restOk = true;
+      // If IPC unavailable, get app name from REST
       if (!ipcOk) {
-        // Use REST info as fallback app identity
-        const info = await api.info();
-        setAppName(info.application);
+        api.info().then((i) => setAppName(i.application)).catch(() => { });
       }
-      setStatusMsg(`REST backend v${health.version} online`);
-    } catch {
+      // Load initial character data in background — don't block connect
+      loadCharacterFromApi().catch(() => { });
+      api.mesh.baseMeshes().catch(() => { });
+    } else {
       setBackendOnline(false);
-      if (!ipcOk) {
-        setStatusMsg("Backend unreachable – start uvicorn backend.main:app");
-      }
     }
 
-    // 3. Set overall connection status
+    // Final status
     if (ipcOk || restOk) {
       setStatus("connected");
       setStatusMsg(
         ipcOk && restOk ? "Connected (IPC + REST)"
-          : ipcOk ? "Connected (IPC only – REST offline)"
-            : "Connected (REST only – core offline)"
+          : ipcOk ? "Connected (IPC · REST offline)"
+            : `Connected (REST v${(restSettled as PromiseFulfilledResult<{ version: string }>).value.version} · core offline)`,
       );
-      // Load character data from REST
-      const char = await loadCharacterFromApi();
-      if (char) {
-        setCharName(char.name);
-        // Eagerly load base mesh list (best-effort)
-        api.mesh.baseMeshes().catch(() => {});
-      }
     } else {
       setStatus("error");
-      setConnErr("Neither IPC core nor REST backend is reachable");
+      const reason = ipcSettled.status === "rejected" ? String(ipcSettled.reason) : "";
+      setConnErr(
+        reason.includes("Not running in Electron")
+          ? "REST backend unreachable – start: uvicorn backend.main:app"
+          : "Cannot reach Python core or REST backend",
+      );
+      setStatusMsg("Connection failed");
     }
 
     setLoadConn(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isElectron, connOpts, api, loadCharacterFromApi, patchCtx]);
+  }, [isElectron, connOpts, api, loadCharacterFromApi]);
 
   const handleDisconnect = useCallback(() => {
     setStatus("disconnected");
@@ -479,7 +526,7 @@ export default function Home() {
     onSaveModel: () => { handleToolMode(0); setCategoryMode(3); },
     onExportModel: () => { handleToolMode(0); setCategoryMode(4); handleExport(); },
     onDownloadAssets: () => { handleToolMode(0); setCategoryMode(5); },
-    onQuit: () => { if (typeof window !== "undefined") window.close?.(); },
+    onQuit: () => { window.close?.(); },
     // Settings
     onPreferences: () => setStatusMsg("Preferences – configure in MakeHuman 2 core"),
     onSceneSettings: () => setStatusMsg("Scene settings – configure in MakeHuman 2 core"),

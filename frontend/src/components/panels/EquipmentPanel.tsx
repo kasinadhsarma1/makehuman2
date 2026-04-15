@@ -62,10 +62,6 @@ export function EquipmentPanel({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold">
-        Character equipment :: filter
-      </p>
-
       {/* Filter */}
       <div className="flex flex-col gap-1">
         <FieldLabel>Filter {equipType}</FieldLabel>

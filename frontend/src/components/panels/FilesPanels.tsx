@@ -132,7 +132,6 @@ export function BaseMeshPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Select a base mesh</SectionTitle>
       <div className="flex flex-col gap-0.5 rounded border border-white/[0.06] bg-black/20 overflow-hidden">
         {meshes.map((m) => (
           <button
@@ -177,7 +176,6 @@ export function SkinPanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Select skin :: parameters</SectionTitle>
       <div className="flex flex-col gap-1">
         <FieldLabel>Filter</FieldLabel>
         <div className={controlPatterns.input.searchWrapper}>
@@ -228,7 +226,6 @@ export function LoadFilePanel({
 
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Load file :: filter</SectionTitle>
       <div className="flex flex-col gap-1">
         <FieldLabel>Search</FieldLabel>
         <div className={controlPatterns.input.searchWrapper}>
@@ -297,7 +294,6 @@ export function SaveFilePanel({
 }) {
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Save file :: parameters</SectionTitle>
       {[
         { key: "name" as const, label: "Character name", icon: <User className="w-3 h-3" />, ph: "My character" },
         { key: "author" as const, label: "Author", icon: <User className="w-3 h-3" />, ph: "unknown" },
@@ -393,7 +389,6 @@ export function ExportPanel({
 
   return (
     <div className="flex flex-col gap-3">
-      <SectionTitle>Export file :: parameters</SectionTitle>
 
       <div className="flex flex-col gap-1">
         <FieldLabel>Export folder</FieldLabel>
@@ -542,7 +537,6 @@ export function DownloadPanel({
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <SectionTitle>Import file :: parameters</SectionTitle>
 
       {/* Asset list */}
       <div className="flex flex-col gap-2">

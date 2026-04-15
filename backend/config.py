@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     app_description: str = (
         "REST API for MakeHuman2 — parametric 3D human character creation tool."
     )
-    app_version: str = "2.0.1"
+    app_version: str = "2.0.0"
 
     # CORS — allow the Electron frontend and common dev ports by default
     cors_origins: List[str] = Field(
@@ -34,7 +34,9 @@ class Settings(BaseSettings):
             "http://localhost:3000",
             "http://localhost:3001",
             "http://127.0.0.1:3000",
-            "app://.",           # Electron production origin
+            "http://127.0.0.1:8000",
+            "app://.",           # Electron custom-protocol origin (packaged app)
+            "null",              # Electron file:// origin — browser sends "null" for file:// requests
         ],
         alias="MH2_CORS_ORIGINS",
     )
