@@ -7,16 +7,10 @@
  * a visual placeholder that mirrors the core's viewport area.
  */
 
-import patterns from "@/lib/patterns";
+import { viewportPatterns, typographyPatterns } from "@/lib/patterns";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User,
-  Wifi,
-  WifiOff,
-  Shuffle,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle2,
+  User, Wifi, WifiOff, Shuffle, RefreshCw, AlertCircle, CheckCircle2,
 } from "lucide-react";
 
 export type ConnectionStatus = "disconnected" | "connecting" | "connected" | "error";
@@ -36,32 +30,27 @@ interface ViewportProps {
 function StatusDot({ status }: { status: ConnectionStatus }) {
   const cls: Record<ConnectionStatus, string> = {
     disconnected: "bg-zinc-500",
-    connecting: "bg-amber-400 animate-pulse",
-    connected: "bg-emerald-400",
-    error: "bg-red-500",
+    connecting:   "bg-amber-400 animate-pulse",
+    connected:    "bg-emerald-400",
+    error:        "bg-red-500",
   };
   return <span className={`inline-block w-2 h-2 rounded-full ${cls[status]}`} />;
 }
 
 export function Viewport({
-  status,
-  appName,
-  characterName,
-  baseMesh,
-  loadingRandomize,
-  loadingGetChar,
-  onRandomize,
-  onGetChar,
+  status, appName, characterName, baseMesh,
+  loadingRandomize, loadingGetChar, onRandomize, onGetChar,
   charJsonKeys = [],
 }: ViewportProps) {
   const connected = status === "connected";
 
   return (
-    <div className={`flex-1 flex flex-col min-w-0 bg-[#131313] ${patterns.input.searchWrapper} overflow-hidden`}>
+    <div className={`flex-1 flex flex-col min-w-0 ${viewportPatterns.container}`}>
       {/* Top info bar */}
       <div className="flex items-center gap-3 px-3 py-1.5 border-b border-white/[0.06] bg-[#0e0e0e] shrink-0">
         <StatusDot status={status} />
         <span className="text-xs text-zinc-400 capitalize font-medium">{status}</span>
+
         {connected && (
           <>
             <span className="text-zinc-700">|</span>
@@ -71,19 +60,21 @@ export function Viewport({
             {baseMesh && (
               <>
                 <span className="text-zinc-700">|</span>
-                <span className={`${patterns.text.muted} font-mono`}>{baseMesh}</span>
+                <span className={`${typographyPatterns.mono}`}>{baseMesh}</span>
               </>
             )}
           </>
         )}
+
         <div className="flex-1" />
+
         {connected && (
-          <div className="flex items-center gap-1">
+          <div className={viewportPatterns.hud.topRight}>
             <button
               onClick={onGetChar}
               disabled={loadingGetChar}
               title="Refresh character data"
-              className="w-6 h-6 flex items-center justify-center rounded text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.06] transition-colors disabled:opacity-40"
+              className={viewportPatterns.viewControls.button}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loadingGetChar ? "animate-spin" : ""}`} />
             </button>
@@ -91,7 +82,7 @@ export function Viewport({
               onClick={onRandomize}
               disabled={loadingRandomize}
               title="Randomize character"
-              className="w-6 h-6 flex items-center justify-center rounded text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.06] transition-colors disabled:opacity-40"
+              className={viewportPatterns.viewControls.button}
             >
               <Shuffle className={`w-3.5 h-3.5 ${loadingRandomize ? "animate-spin" : ""}`} />
             </button>
@@ -100,8 +91,8 @@ export function Viewport({
       </div>
 
       {/* Viewport body */}
-      <div className={`flex-1 flex items-center justify-center ${patterns.input.searchWrapper}`}>
-        {/* Grid background */}
+      <div className="flex-1 flex items-center justify-center relative overflow-hidden">
+        {/* Dot-grid background */}
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -172,7 +163,7 @@ export function Viewport({
               className="flex flex-col items-center gap-6 z-10 w-full max-w-lg px-6"
             >
               {/* Character silhouette placeholder */}
-              <div className={patterns.input.searchWrapper}>
+              <div className="relative">
                 <div className="w-40 h-56 rounded-2xl border border-violet-500/20 bg-gradient-to-b from-violet-900/10 to-transparent flex items-end justify-center pb-4">
                   <User className="w-20 h-20 text-violet-400/30" strokeWidth={1} />
                 </div>
@@ -192,9 +183,7 @@ export function Viewport({
                       key={key}
                       className="text-center py-2 px-3 rounded-lg bg-white/[0.03] border border-white/[0.05]"
                     >
-                      <span className="text-[10px] text-zinc-500 capitalize font-mono">
-                        {key}
-                      </span>
+                      <span className={`${typographyPatterns.mono} capitalize`}>{key}</span>
                     </div>
                   ))}
                 </div>

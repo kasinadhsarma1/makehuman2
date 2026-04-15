@@ -12,7 +12,7 @@
  * cat 5  "Pose :: editor"              – PoseEditorPanel (tree + class widgets)
  */
 
-import patterns from "@/lib/patterns";
+import { typographyPatterns, controlPatterns, panelPatterns } from "@/lib/patterns";
 import { useState } from "react";
 import {
   Search, Play, Pause, SkipBack, SkipForward, ChevronFirst,
@@ -32,7 +32,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className={patterns.text.label}>
+    <label className={typographyPatterns.label}>
       {children}
     </label>
   );
@@ -75,14 +75,14 @@ function FilterSearch({
   placeholder?: string;
 }) {
   return (
-    <div className={patterns.input.searchWrapper}>
-      <Search className={patterns.input.searchIcon} />
+    <div className={controlPatterns.input.searchWrapper}>
+      <Search className={controlPatterns.input.searchIcon} />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? "filter…"}
-        className={`w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:${patterns.grid.itemHighlight}`}
+        className="w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40"
       />
     </div>
   );
@@ -293,7 +293,7 @@ export function AnimPlayerPanel({
         <div>
           <div className="flex items-center justify-between mb-0.5">
             <FieldLabel>Frame number:</FieldLabel>
-            <span className={`${patterns.text.mono} text-zinc-400`}>{state.currentFrame}</span>
+            <span className={`${typographyPatterns.mono} text-zinc-400`}>{state.currentFrame}</span>
           </div>
           <input
             type="range"
@@ -329,7 +329,7 @@ export function AnimPlayerPanel({
       <div>
         <div className="flex items-center justify-between mb-0.5">
           <FieldLabel>Speed (fps):</FieldLabel>
-          <span className={`${patterns.text.mono} text-zinc-400`}>{state.speedValue}</span>
+          <span className={`${typographyPatterns.mono} text-zinc-400`}>{state.speedValue}</span>
         </div>
         <input
           type="range"
@@ -345,7 +345,7 @@ export function AnimPlayerPanel({
       <div>
         <div className="flex items-center justify-between mb-0.5">
           <FieldLabel>Rotation angle:</FieldLabel>
-          <span className={`${patterns.text.mono} text-zinc-400`}>{state.rotAngle}</span>
+          <span className={`${typographyPatterns.mono} text-zinc-400`}>{state.rotAngle}</span>
         </div>
         <input
           type="range"
@@ -446,7 +446,7 @@ function PoseEditorTree({
             onClick={() =>
               setExpanded((e) => ({ ...e, [group]: !e[group] }))
             }
-            className={`w-full flex items-center gap-1.5 px-2 py-1.5 ${patterns.panel.titleTextAlt} hover:bg-white/[0.05]`}
+            className={`w-full flex items-center gap-1.5 px-2 py-1.5 ${panelPatterns.titleTextAlt} hover:bg-white/[0.05]`}
           >
             {expanded[group] ? (
               <ChevronDown className="w-3 h-3 text-zinc-500 shrink-0" />
@@ -500,7 +500,7 @@ function PoseUnitSlider({
         step={0.01}
         value={unit.value}
         onChange={(e) => onChange(unit.name, Number(e.target.value))}
-        className={`${patterns.input.range}.5`}
+        className={controlPatterns.range.base}
       />
       <button
         onClick={() => onChange(unit.name, Math.min(1, unit.value + 0.1))}
@@ -508,7 +508,7 @@ function PoseUnitSlider({
       >
         <Plus className="w-3 h-3" />
       </button>
-      <span className={`${patterns.text.mono} text-zinc-500 w-8 text-right shrink-0`}>
+      <span className={`${typographyPatterns.mono} text-zinc-500 w-8 text-right shrink-0`}>
         {unit.value.toFixed(2)}
       </span>
     </div>

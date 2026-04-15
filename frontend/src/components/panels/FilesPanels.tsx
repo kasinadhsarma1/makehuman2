@@ -12,7 +12,7 @@
  * cat 5  "Import file :: parameters"  – DownloadPanel
  */
 
-import patterns from "@/lib/patterns";
+import { typographyPatterns, controlPatterns, buttonPatterns } from "@/lib/patterns";
 import {
   FolderOpen, Save, Upload, Download, Trash2, RefreshCw,
   Search, User, Tag, Hash, FileText, CheckSquare, Square,
@@ -31,7 +31,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className={patterns.text.label}>
+    <label className={typographyPatterns.label}>
       {children}
     </label>
   );
@@ -55,7 +55,7 @@ function TextInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
-      className={`w-full bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:${patterns.grid.itemHighlight} disabled:opacity-50`}
+      className={`w-full bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40 disabled:opacity-50`}
     />
   );
 }
@@ -180,14 +180,14 @@ export function SkinPanel({
       <SectionTitle>Select skin :: parameters</SectionTitle>
       <div className="flex flex-col gap-1">
         <FieldLabel>Filter</FieldLabel>
-        <div className={patterns.input.searchWrapper}>
-          <Search className={patterns.input.searchIcon} />
+        <div className={controlPatterns.input.searchWrapper}>
+          <Search className={controlPatterns.input.searchIcon} />
           <input
             type="text"
             value={filter}
             onChange={(e) => onFilterChange(e.target.value)}
             placeholder="filter skins…"
-            className={`w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:${patterns.grid.itemHighlight}`}
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40"
           />
         </div>
       </div>
@@ -231,14 +231,14 @@ export function LoadFilePanel({
       <SectionTitle>Load file :: filter</SectionTitle>
       <div className="flex flex-col gap-1">
         <FieldLabel>Search</FieldLabel>
-        <div className={patterns.input.searchWrapper}>
-          <Search className={patterns.input.searchIcon} />
+        <div className={controlPatterns.input.searchWrapper}>
+          <Search className={controlPatterns.input.searchIcon} />
           <input
             type="text"
             value={searchText}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="search characters…"
-            className={`w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:${patterns.grid.itemHighlight}`}
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40"
           />
         </div>
       </div>
@@ -307,7 +307,7 @@ export function SaveFilePanel({
       ].map(({ key, label, icon, ph }) => (
         <div key={key} className="flex flex-col gap-1">
           <FieldLabel>{label}</FieldLabel>
-          <div className={`${patterns.input.searchWrapper} flex items-center`}>
+          <div className="relative flex items-center">
             <span className="absolute left-2 text-zinc-600">{icon}</span>
             <TextInput
               value={data[key]}
@@ -439,7 +439,7 @@ export function ExportPanel({
               onClick={() => onChange({ exportType: t })}
               className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition-colors ${
                 data.exportType === t
-                  ? "${patterns.button.activeCategory}"
+                  ? buttonPatterns.category.active
                   : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] border border-white/[0.06]"
               }`}
             >
@@ -452,11 +452,11 @@ export function ExportPanel({
       {isGltf && (
         <div className="flex flex-col gap-1">
           <FieldLabel>Scale</FieldLabel>
-          <div className={patterns.input.searchWrapper}>
+          <div className="relative">
             <select
               value={data.scaleIndex}
               onChange={(e) => onChange({ scaleIndex: Number(e.target.value) })}
-              className={`${patterns.input.select} appearance-none`}
+              className={`${controlPatterns.select.base} appearance-none`}
             >
               {SCALE_ITEMS.map((s, i) => (
                 <option key={i} value={i}>

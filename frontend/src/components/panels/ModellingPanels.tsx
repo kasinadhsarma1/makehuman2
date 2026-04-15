@@ -8,7 +8,7 @@
  * Mirrors: RandomForm, ScaleComboArray, model_buttons from MHMainWindow
  */
 
-import patterns from "@/lib/patterns";
+import { typographyPatterns, controlPatterns, panelPatterns } from "@/lib/patterns";
 import { useState } from "react";
 import {
   RotateCcw, ArrowLeftRight, Shuffle, ChevronRight, ChevronDown,
@@ -27,7 +27,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className={patterns.text.label}>
+    <label className={typographyPatterns.label}>
       {children}
     </label>
   );
@@ -79,7 +79,7 @@ function SimpleSlider({
     <div className="flex flex-col gap-0.5" title={tooltip}>
       <div className="flex items-center justify-between">
         <FieldLabel>{label}</FieldLabel>
-        <span className={`${patterns.text.mono} text-zinc-400`}>{value}</span>
+        <span className={`${typographyPatterns.mono} text-zinc-400`}>{value}</span>
       </div>
       <input
         type="range"
@@ -120,14 +120,14 @@ function CategoryTree({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className={`${patterns.input.searchWrapper} mb-1`}>
-        <Search className={patterns.input.searchIcon} />
+      <div className={`${controlPatterns.input.searchWrapper} mb-1`}>
+        <Search className={controlPatterns.input.searchIcon} />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="filter categories…"
-          className={`w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1 text-xs text-zinc-300 focus:outline-none focus:${patterns.grid.itemHighlight}`}
+          className="w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-violet-500/40"
         />
       </div>
       <div className="rounded border border-white/[0.06] bg-black/20 overflow-hidden max-h-56 overflow-y-auto">
@@ -142,7 +142,7 @@ function CategoryTree({
             <div key={group}>
               <button
                 onClick={() => toggle(group)}
-                className={`w-full flex items-center gap-1.5 px-2 py-1.5 ${patterns.panel.titleTextAlt} hover:bg-white/[0.05] transition-colors`}
+                className={`w-full flex items-center gap-1.5 px-2 py-1.5 ${panelPatterns.titleTextAlt} hover:bg-white/[0.05] transition-colors`}
               >
                 {expanded[group] ? (
                   <ChevronDown className="w-3 h-3 text-zinc-500 shrink-0" />
@@ -302,7 +302,7 @@ export function RandomizePanel({
         <select
           value={values.gender}
           onChange={(e) => onChange({ gender: Number(e.target.value) })}
-          className={patterns.input.select}
+          className={controlPatterns.select.base}
         >
           {GENDER_OPTIONS.map((o, i) => (
             <option key={i} value={i}>{o}</option>

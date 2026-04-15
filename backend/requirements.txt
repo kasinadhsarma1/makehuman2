@@ -1,0 +1,22 @@
+# MakeHuman2 FastAPI Backend requirements
+# Install into the project venv:
+#   source venv/bin/activate
+#   pip install -r backend/requirements.txt
+
+# --- Web framework ---
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9    # multipart/form-data uploads
+aiofiles>=23.2.1           # async file serving
+
+# --- Data validation ---
+pydantic>=2.6.0
+pydantic-settings>=2.2.0   # settings from env vars / .env file
+
+# --- Numerics (shared with MakeHuman core) ---
+numpy>=1.26.0
+
+# --- Existing MakeHuman2 deps (already in venv) ---
+# PySide6>=6.5.0
+# PyOpenGL>=3.1.0
+# psutil>=5.9.0

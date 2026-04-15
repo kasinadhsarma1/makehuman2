@@ -1,5 +1,6 @@
 "use client";
 
+import { statusBarPatterns } from "@/lib/patterns";
 import type { ConnectionStatus } from "./Viewport";
 
 export function StatusBar({
@@ -13,35 +14,57 @@ export function StatusBar({
   appName: string;
   logMessage: string;
 }) {
-  const statusColors: Record<ConnectionStatus, string> = {
-    disconnected: "text-zinc-600",
-    connecting: "text-amber-400",
-    connected: "text-emerald-400",
-    error: "text-red-400",
+  const activityCls: Record<ConnectionStatus, string> = {
+    disconnected: statusBarPatterns.activity.idle,
+    connecting:   statusBarPatterns.activity.working,
+    connected:    statusBarPatterns.activity.done,
+    error:        statusBarPatterns.activity.error,
+  };
+
+  const statusTextCls: Record<ConnectionStatus, string> = {
+    disconnected: statusBarPatterns.item,
+    connecting:   statusBarPatterns.itemWarning,
+    connected:    statusBarPatterns.itemSuccess,
+    error:        statusBarPatterns.itemError,
   };
 
   return (
-    <div className="h-6 border-t border-white/[0.07] bg-[#0a0a0a] flex items-center px-3 gap-4 shrink-0">
-      <span className={`text-[10px] font-medium capitalize ${statusColors[status]}`}>
+    <div className={statusBarPatterns.bar}>
+      {/* Connection status */}
+      <span className={activityCls[status]} />
+      <span className={`${statusTextCls[status]} font-medium capitalize`}>
         {status}
       </span>
+
+      <span className={statusBarPatterns.separator} />
+
+      {/* App name */}
       {appName && (
-        <span className="text-[10px] text-zinc-600">
-          {appName}
-        </span>
+        <span className={statusBarPatterns.item}>{appName}</span>
       )}
+
+      {/* Character name */}
       {characterName && (
-        <span className="text-[10px] text-zinc-500">
-          Character: <span className="text-zinc-300">{characterName}</span>
-        </span>
+        <>
+          <span className={statusBarPatterns.separator} />
+          <span className={statusBarPatterns.item}>
+            Character:{" "}
+            <span className={statusBarPatterns.itemHighlight}>{characterName}</span>
+          </span>
+        </>
       )}
-      <div className="flex-1" />
+
+      <div className={statusBarPatterns.spacer} />
+
+      {/* Log message */}
       {logMessage && (
-        <span className="text-[10px] text-zinc-600 truncate max-w-xs">
+        <span className={`${statusBarPatterns.item} truncate max-w-xs`}>
           {logMessage}
         </span>
       )}
-      <span className="text-[10px] text-zinc-700">MakeHuman 2</span>
+
+      <span className={statusBarPatterns.separator} />
+      <span className={statusBarPatterns.item}>MakeHuman 2</span>
     </div>
   );
 }

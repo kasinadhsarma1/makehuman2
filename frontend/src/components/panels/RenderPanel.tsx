@@ -8,12 +8,12 @@
  * posed, corrections, frame slider, smooth subdivision, Render button.
  */
 
-import patterns from "@/lib/patterns";
+import { typographyPatterns } from "@/lib/patterns";
 import { Camera, Save, Eye, CheckSquare, Square } from "lucide-react";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className={patterns.text.label}>
+    <label className={typographyPatterns.label}>
       {children}
     </label>
   );
@@ -152,7 +152,7 @@ export function RenderPanel({
         <div>
           <div className="flex items-center justify-between mb-0.5">
             <FieldLabel>Frame number:</FieldLabel>
-            <span className={`${patterns.text.mono} text-zinc-400`}>
+            <span className={`${typographyPatterns.mono} text-zinc-400`}>
               {values.currentFrame}
             </span>
           </div>
@@ -171,7 +171,7 @@ export function RenderPanel({
       <div>
         <div className="flex items-center justify-between mb-0.5">
           <FieldLabel>Rotation:</FieldLabel>
-          <span className={`${patterns.text.mono} text-zinc-400`}>{values.angle}°</span>
+          <span className={`${typographyPatterns.mono} text-zinc-400`}>{values.angle}°</span>
         </div>
         <input
           type="range"
@@ -187,11 +187,10 @@ export function RenderPanel({
       <button
         onClick={() => onChange({ subdivided: !values.subdivided })}
         title="Select all other options before using subdivision!"
-        className={`w-full px-3 py-2 rounded text-xs font-semibold transition-colors border ${
-          values.subdivided
+        className={`w-full px-3 py-2 rounded text-xs font-semibold transition-colors border ${values.subdivided
             ? "bg-orange-600/70 border-orange-500/50 text-white"
             : "bg-white/[0.04] border-white/[0.08] text-zinc-300 hover:bg-white/[0.08]"
-        }`}
+          }`}
       >
         {values.subdivided ? "Smooth (subdivided) ✓" : "Smooth (subdivided)"}
       </button>

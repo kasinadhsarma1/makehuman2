@@ -18,7 +18,13 @@
  *   Pose/pose editor (3/5)    → Pose sliders (category)
  */
 
-import patterns from "@/lib/patterns";
+import {
+  panelPatterns,
+  typographyPatterns,
+  buttonPatterns,
+  controlPatterns,
+  assetPatterns,
+} from "@/lib/patterns";
 import { useState } from "react";
 import { Search, Plus, Trash2, Info, Download, Minus } from "lucide-react";
 import type { ToolMode } from "./Toolbar";
@@ -29,14 +35,14 @@ import type { ExportFormData, ExportType } from "@/components/panels/FilesPanels
 function PanelTitle({ children }: { children: React.ReactNode }) {
   return (
     <div className="px-3 py-2 border-b border-white/[0.07] bg-[#0e0e0e] shrink-0">
-      <p className={patterns.panel.titleTextAlt}>{children}</p>
+      <p className={panelPatterns.titleTextAlt}>{children}</p>
     </div>
   );
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className={patterns.text.label}>
+    <label className={typographyPatterns.label}>
       {children}
     </label>
   );
@@ -88,16 +94,16 @@ function ImageGrid({
             </p>
           </div>
         ) : (
-          <div className={patterns.grid.base}>
+          <div className={assetPatterns.grid.base}>
             {items.map((item) => (
               <button
                 key={item.name}
                 onClick={() => onSelect(item.name)}
-                className={`${patterns.input.searchWrapper} aspect-square rounded overflow-hidden border transition-all ${selected === item.name
-                    ? "${patterns.grid.itemActive}"
-                    : item.active
-                      ? "${patterns.grid.itemHighlight}"
-                      : "${patterns.grid.itemInactive}"
+                className={`relative aspect-square rounded overflow-hidden border transition-all ${selected === item.name
+                  ? assetPatterns.grid.item.active
+                  : item.active
+                    ? assetPatterns.grid.item.highlight
+                    : assetPatterns.grid.item.inactive
                   } bg-white/[0.03]`}
               >
                 {item.thumb ? (
@@ -130,7 +136,7 @@ function ImageGrid({
             <button
               onClick={() => selected && onUse?.(selected)}
               disabled={!selected}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded ${patterns.button.primary}`}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded ${buttonPatterns.primary}`}
             >
               <Plus className="w-3 h-3" />
               Use
@@ -140,7 +146,7 @@ function ImageGrid({
             <button
               onClick={() => selected && onDelete?.(selected)}
               disabled={!selected}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded ${patterns.button.danger}`}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded ${buttonPatterns.danger}`}
             >
               <Trash2 className="w-3 h-3" />
               Remove
@@ -195,14 +201,14 @@ function MorphSlider({
         <span className="text-[10px] text-zinc-300 font-mono truncate max-w-[140px]">
           {target.name}
         </span>
-        <span className={`${patterns.text.mono} text-zinc-500 ml-1`}>
+        <span className={`${typographyPatterns.mono} text-zinc-500 ml-1`}>
           {target.value.toFixed(2)}
         </span>
       </div>
       <div className="flex items-center gap-1.5">
         <button
           onClick={() => onChange(target.name, Math.max(target.min ?? -1, target.value - 0.05))}
-          className={patterns.button.iconTiny}
+          className={buttonPatterns.icon.tiny}
         >
           <Minus className="w-2.5 h-2.5" />
         </button>
@@ -213,11 +219,11 @@ function MorphSlider({
           step={0.01}
           value={target.value}
           onChange={(e) => onChange(target.name, Number(e.target.value))}
-          className={patterns.input.range}
+          className={controlPatterns.range.base}
         />
         <button
           onClick={() => onChange(target.name, Math.min(target.max ?? 1, target.value + 0.05))}
-          className={patterns.button.iconTiny}
+          className={buttonPatterns.icon.tiny}
         >
           <Plus className="w-2.5 h-2.5" />
         </button>
@@ -255,8 +261,8 @@ function ExportRightContent({
               key={t}
               onClick={() => onChange({ exportType: t })}
               className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition-colors ${data.exportType === t
-                  ? "${patterns.button.activeCategory}"
-                  : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] border border-white/[0.06]"
+                ? buttonPatterns.category.active
+                : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] border border-white/[0.06]"
                 }`}
             >
               {t}
@@ -271,7 +277,7 @@ function ExportRightContent({
           <select
             value={data.scaleIndex}
             onChange={(e) => onChange({ scaleIndex: Number(e.target.value) })}
-            className={patterns.input.select}
+            className={controlPatterns.select.base}
           >
             {SCALE_ITEMS.map((s, i) => (
               <option key={i} value={i}>{s.label}</option>
@@ -377,17 +383,17 @@ export function ContextPanel({
           !skinSearch || i.name.toLowerCase().includes(skinSearch.toLowerCase())
       );
       return (
-        <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+        <div className={panelPatterns.container} style={{ minWidth: 220 }}>
           <PanelTitle>Base material: skin</PanelTitle>
           <div className="p-2 border-b border-white/[0.07] shrink-0">
-            <div className={patterns.input.searchWrapper}>
-              <Search className={patterns.input.searchIcon} />
+            <div className={controlPatterns.input.searchWrapper}>
+              <Search className={controlPatterns.input.searchIcon} />
               <input
                 type="text"
                 value={skinSearch}
                 onChange={(e) => setSkinSearch(e.target.value)}
                 placeholder="filter skins…"
-                className={patterns.input.searchInput}
+                className={controlPatterns.input.searchInput}
               />
             </div>
           </div>
@@ -408,7 +414,7 @@ export function ContextPanel({
 
     if (categoryMode === 2) {
       return (
-        <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+        <div className={panelPatterns.container} style={{ minWidth: 220 }}>
           <PanelTitle>Character MHM Files</PanelTitle>
           <div className="flex-1 overflow-hidden">
             <ImageGrid
@@ -426,7 +432,7 @@ export function ContextPanel({
 
     if (categoryMode === 3) {
       return (
-        <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+        <div className={panelPatterns.container} style={{ minWidth: 220 }}>
           <PanelTitle>Character MHM Files (select to replace file)</PanelTitle>
           <div className="flex-1 overflow-hidden">
             <ImageGrid
@@ -443,7 +449,7 @@ export function ContextPanel({
 
     if (categoryMode === 4) {
       return (
-        <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+        <div className={panelPatterns.container} style={{ minWidth: 220 }}>
           <PanelTitle>Export character</PanelTitle>
           <div className="flex-1 overflow-y-auto">
             <ExportRightContent data={exportData} onChange={onExportDataChange} />
@@ -461,17 +467,17 @@ export function ContextPanel({
         !morphSearch || t.name.toLowerCase().includes(morphSearch.toLowerCase())
     );
     return (
-      <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+      <div className={panelPatterns.container} style={{ minWidth: 220 }}>
         <PanelTitle>Morph, category: {morphSearch || "all"}</PanelTitle>
         <div className="p-2 border-b border-white/[0.07] shrink-0">
-          <div className={patterns.input.searchWrapper}>
-            <Search className={patterns.input.searchIcon} />
+          <div className={controlPatterns.input.searchWrapper}>
+            <Search className={controlPatterns.input.searchIcon} />
             <input
               type="text"
               value={morphSearch}
               onChange={(e) => setMorphSearch(e.target.value)}
               placeholder="filter morphs…"
-              className={patterns.input.searchInput}
+              className={controlPatterns.input.searchInput}
             />
           </div>
         </div>
@@ -501,7 +507,7 @@ export function ContextPanel({
     };
     const name = equipNames[categoryMode] ?? "equipment";
     return (
-      <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+      <div className={panelPatterns.container} style={{ minWidth: 220 }}>
         <PanelTitle>Equipment, category: {name}</PanelTitle>
         <div className="flex-1 overflow-hidden">
           <ImageGrid
@@ -529,7 +535,7 @@ export function ContextPanel({
     if ([0, 1, 3].includes(categoryMode)) {
       const name = poseNames[categoryMode];
       return (
-        <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+        <div className={panelPatterns.container} style={{ minWidth: 220 }}>
           <PanelTitle>Pose and animation, category: {name}</PanelTitle>
           <div className="flex-1 overflow-hidden">
             <ImageGrid
@@ -548,7 +554,7 @@ export function ContextPanel({
 
     if (categoryMode === 4) {
       return (
-        <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+        <div className={panelPatterns.container} style={{ minWidth: 220 }}>
           <PanelTitle>Expressions, category</PanelTitle>
           <div className="flex-1 overflow-y-auto">
             {state.exprUnits.length === 0 ? (
@@ -577,7 +583,7 @@ export function ContextPanel({
 
     if (categoryMode === 5) {
       return (
-        <div className={patterns.panel.container} style={{ minWidth: 220 }}>
+        <div className={panelPatterns.container} style={{ minWidth: 220 }}>
           <PanelTitle>Poses, category</PanelTitle>
           <div className="flex-1 overflow-y-auto">
             {state.poseUnits.length === 0 ? (

@@ -9,12 +9,12 @@
  *   5 teeth   | 6 tongue | 7 proxy (topology)
  */
 
-import patterns from "@/lib/patterns";
+import { typographyPatterns, controlPatterns } from "@/lib/patterns";
 import { Search, RefreshCw, Trash2, Info, Plus } from "lucide-react";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className={patterns.text.label}>
+    <label className={typographyPatterns.label}>
       {children}
     </label>
   );
@@ -69,15 +69,15 @@ export function EquipmentPanel({
       {/* Filter */}
       <div className="flex flex-col gap-1">
         <FieldLabel>Filter {equipType}</FieldLabel>
-        <div className={`${patterns.input.searchWrapper} flex gap-1`}>
-          <div className={`${patterns.input.searchWrapper} flex-1`}>
-            <Search className={patterns.input.searchIcon} />
+        <div className="flex gap-1">
+          <div className={`${controlPatterns.input.searchWrapper} flex-1`}>
+            <Search className={controlPatterns.input.searchIcon} />
             <input
               type="text"
               value={filter}
               onChange={(e) => onFilterChange(e.target.value)}
               placeholder={`filter ${equipType}…`}
-              className={`w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:${patterns.grid.itemHighlight}`}
+              className={`w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40`}
             />
           </div>
           <button

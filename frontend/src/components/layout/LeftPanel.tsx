@@ -12,7 +12,7 @@
  *   4 = Render      1 category button
  */
 
-import patterns from "@/lib/patterns";
+import { panelPatterns, buttonPatterns, typographyPatterns, controlPatterns } from "@/lib/patterns";
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -230,7 +230,7 @@ export function LeftPanel({
       return (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
           <WifiOff className="w-6 h-6 text-zinc-600" />
-          <p className={patterns.text.muted}>
+          <p className={typographyPatterns.muted}>
             Connect to MakeHuman 2 to use this panel.
           </p>
         </div>
@@ -494,18 +494,19 @@ export function LeftPanel({
   }
 
   return (
-    <div className="w-56 shrink-0 border-r border-white/[0.07] bg-[#0e0e0e] flex flex-col overflow-hidden">
+    <div className={`w-56 shrink-0 flex flex-col overflow-hidden ${panelPatterns.containerLeft}`}>
       {/* Category strip */}
-      <div className="flex flex-wrap gap-0.5 p-1.5 border-b border-white/[0.07] bg-[#111] shrink-0">
+      <div className={panelPatterns.left.categoryBar}>
         {cats.map((cat, i) => (
           <button
             key={cat.id}
             onClick={() => onCategoryChange(i)}
             title={cat.tip}
-            className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${categoryMode === i
-                ? "${patterns.button.activeCategory}"
-                : "${patterns.button.inactiveCategory}"
-              }`}
+            className={`${panelPatterns.left.categoryButton} ${
+              categoryMode === i
+                ? panelPatterns.left.categoryActive
+                : panelPatterns.left.categoryInactive
+            }`}
           >
             {cat.icon}
           </button>
@@ -513,14 +514,14 @@ export function LeftPanel({
       </div>
 
       {/* Title bar */}
-      <div className="px-3 py-2 border-b border-white/[0.06] bg-[#111] shrink-0">
-        <p className={patterns.panel.titleText}>
+      <div className={panelPatterns.titleBar}>
+        <p className={panelPatterns.titleText}>
           {getPanelTitle(toolMode, categoryMode)}
         </p>
       </div>
 
       {/* Panel content */}
-      <div className={patterns.panel.content}>
+      <div className={panelPatterns.content}>
         <AnimatePresence mode="wait">
           <motion.div
             key={`${toolMode}-${catId}`}
@@ -543,27 +544,27 @@ export function LeftPanel({
                 type="text"
                 value={host}
                 onChange={(e) => onHostChange(e.target.value)}
-                className={`flex-1 w-0 bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1 ${patterns.text.mono} text-zinc-300 focus:outline-none`}
+                className={`flex-1 w-0 ${controlPatterns.input.base}`}
                 placeholder="127.0.0.1"
               />
               <input
                 type="number"
                 value={port}
                 onChange={(e) => onPortChange(Number(e.target.value))}
-                className={`w-16 bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1 ${patterns.text.mono} text-zinc-300 focus:outline-none`}
+                className={`w-16 ${controlPatterns.input.base}`}
                 placeholder="12345"
               />
             </div>
             <button
               onClick={onConnect}
               disabled={loadingConnect || status === "connecting"}
-              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded ${patterns.button.primary}`}
+              className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded ${buttonPatterns.primary}`}
             >
               <Wifi className="w-3 h-3" />
               {status === "connecting" ? "Connecting…" : "Connect"}
             </button>
             {connectionError && (
-              <div className={`flex items-start gap-1 ${patterns.text.error}`}>
+              <div className={`flex items-start gap-1 ${typographyPatterns.error}`}>
                 <XCircle className="w-3 h-3 shrink-0 mt-0.5" />
                 <span className="break-all leading-tight">{connectionError}</span>
               </div>
@@ -571,13 +572,13 @@ export function LeftPanel({
           </>
         ) : (
           <>
-            <div className={`flex items-center gap-1.5 ${patterns.text.success}`}>
+            <div className={`flex items-center gap-1.5 ${typographyPatterns.success}`}>
               <CheckCircle2 className="w-3 h-3 shrink-0" />
               <span className="truncate">{characterName || "Connected"}</span>
             </div>
             <button
               onClick={onDisconnect}
-              className="px-3 py-1 rounded bg-red-900/40 hover:bg-red-800/60 text-red-300 text-[10px] font-semibold transition-colors border border-red-700/30"
+              className={`px-3 py-1 rounded ${buttonPatterns.danger}`}
             >
               Disconnect
             </button>
