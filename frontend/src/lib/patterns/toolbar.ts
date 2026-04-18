@@ -63,4 +63,10 @@ export const menuBarPatterns = {
 
   // Window title (centre of menu bar)
   title: "flex-1 text-center text-[10px] text-zinc-600 truncate pointer-events-none",
+
+  // Logo / about icon button at far left of menu bar
+  aboutButton: "w-6 h-6 rounded flex items-center justify-center hover:bg-white/[0.08] transition-colors mr-1",
+
+  // Nested sub-menu panel (shown on hover of a submenu item)
+  submenuPanel: "absolute left-full top-0 min-w-[180px] bg-[#1a1a1a] border border-white/[0.09] rounded shadow-2xl z-50 py-1",
 } as const;

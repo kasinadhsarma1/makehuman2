@@ -33,6 +33,8 @@ export const panelPatterns = {
     treeItem: "flex items-center gap-1.5 px-2 py-1 rounded text-[10px] text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-200 cursor-pointer transition-colors group",
     treeItemActive: "bg-orange-600/10 text-orange-300 border border-orange-500/20",
     treeItemIcon: "w-3 h-3 shrink-0 text-zinc-600 group-hover:text-zinc-400",
+    // Connection mini-panel docked at bottom of left panel
+    connectionBar: "border-t border-white/[0.07] p-2 flex flex-col gap-1.5 bg-[#111] shrink-0",
   },
 
   // --- Right panel specifics ---
@@ -43,6 +45,9 @@ export const panelPatterns = {
     tabActive: "text-zinc-200 border-b-2 border-orange-500",
     section: "px-3 py-2 border-b border-white/[0.05]",
     sectionTitle: "text-[9px] uppercase tracking-widest text-zinc-600 font-semibold mb-1.5",
+    // Navigation / toggle button (view presets, toggleable overlays)
+    navButton: "w-8 h-8 rounded flex items-center justify-center transition-colors text-xs border bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-200 border-white/[0.06] active:bg-white/[0.12]",
+    navButtonActive: "w-8 h-8 rounded flex items-center justify-center transition-colors text-xs border bg-orange-600/70 text-white border-orange-500/50",
   },
 
   // --- Context panel specifics ---
@@ -55,6 +60,9 @@ export const panelPatterns = {
     propertyLabel: "text-[10px] text-zinc-600 shrink-0",
     propertyValue: "text-[10px] font-mono text-zinc-300 text-right truncate",
   },
+
+  // Title bar shared helper — simple single-line title strip inside a panel section
+  panelTitleBar: "px-3 py-2 border-b border-white/[0.07] bg-[#0e0e0e] shrink-0",
 
   // --- Empty / placeholder states ---
   empty: {

@@ -114,7 +114,7 @@ function SubMenu({ item, onClose }: { item: MenuItem; onClose: () => void }) {
         <ChevronRight className="w-3 h-3 text-zinc-500 ml-auto" />
       </div>
       {open && item.submenu && (
-        <div className="absolute left-full top-0 min-w-[180px] bg-[#1a1a1a] border border-white/[0.09] rounded shadow-2xl z-50 py-1">
+        <div className={menuBarPatterns.submenuPanel}>
           {item.submenu.map((sub, i) => (
             <button
               key={i}
@@ -299,7 +299,7 @@ export function MenuBar({ cb, appName }: { cb: MenuBarCallbacks; appName: string
       {/* Logo / About */}
       <button
         onClick={cb.onInfo}
-        className="w-6 h-6 rounded flex items-center justify-center hover:bg-white/[0.08] transition-colors mr-1"
+        className={menuBarPatterns.aboutButton}
         title="About MakeHuman 2"
       >
         <User className="w-3.5 h-3.5 text-violet-400" />

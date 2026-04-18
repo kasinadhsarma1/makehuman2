@@ -8,7 +8,7 @@
  * posed, corrections, frame slider, smooth subdivision, Render button.
  */
 
-import { typographyPatterns } from "@/lib/patterns";
+import { typographyPatterns, buttonPatterns, controlPatterns } from "@/lib/patterns";
 import { Camera, Save, Eye, CheckSquare, Square } from "lucide-react";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -34,7 +34,7 @@ function Checkbox({
     <button
       onClick={() => onChange(!checked)}
       title={tooltip}
-      className="flex items-center gap-2 text-xs text-zinc-300 hover:text-white transition-colors py-0.5"
+      className={buttonPatterns.checkboxRow}
     >
       {checked ? (
         <CheckSquare className="w-3.5 h-3.5 text-violet-400 shrink-0" />
@@ -103,7 +103,7 @@ export function RenderPanel({
               type="number"
               value={values.width}
               onChange={(e) => onChange({ width: Number(e.target.value) })}
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none"
+              className={controlPatterns.input.base}
               min={1}
             />
           </div>
@@ -113,7 +113,7 @@ export function RenderPanel({
               type="number"
               value={values.height}
               onChange={(e) => onChange({ height: Number(e.target.value) })}
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none"
+              className={controlPatterns.input.base}
               min={1}
             />
           </div>
@@ -158,7 +158,7 @@ export function RenderPanel({
             max={Math.max(0, values.frameCount - 1)}
             value={values.currentFrame}
             onChange={(e) => onChange({ currentFrame: Number(e.target.value) })}
-            className="w-full accent-orange-500 h-1.5"
+          className={controlPatterns.range.base}
           />
         </div>
       )}
@@ -175,7 +175,7 @@ export function RenderPanel({
           max={180}
           value={values.angle}
           onChange={(e) => onChange({ angle: Number(e.target.value) })}
-          className="w-full accent-orange-500 h-1.5"
+          className={controlPatterns.range.base}
         />
       </div>
 
@@ -183,10 +183,7 @@ export function RenderPanel({
       <button
         onClick={() => onChange({ subdivided: !values.subdivided })}
         title="Select all other options before using subdivision!"
-        className={`w-full px-3 py-2 rounded text-xs font-semibold transition-colors border ${values.subdivided
-            ? "bg-orange-600/70 border-orange-500/50 text-white"
-            : "bg-white/[0.04] border-white/[0.08] text-zinc-300 hover:bg-white/[0.08]"
-          }`}
+        className={values.subdivided ? buttonPatterns.toggleFull.active : buttonPatterns.toggleFull.base}
       >
         {values.subdivided ? "Smooth (subdivided) ✓" : "Smooth (subdivided)"}
       </button>
@@ -195,7 +192,7 @@ export function RenderPanel({
       <button
         onClick={onRender}
         disabled={loading}
-        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded bg-violet-700 hover:bg-violet-600 text-white text-xs font-semibold transition-colors disabled:opacity-40"
+        className={buttonPatterns.fullPrimary}
       >
         <Camera className={`w-4 h-4 ${loading ? "animate-pulse" : ""}`} />
         {loading ? "Rendering…" : "Render"}
@@ -205,7 +202,7 @@ export function RenderPanel({
         <button
           onClick={onViewImage}
           disabled={!values.imageSaved}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded bg-white/[0.04] border border-white/[0.08] text-zinc-300 text-xs font-semibold transition-colors hover:bg-white/[0.08] disabled:opacity-30"
+          className={`flex-1 flex items-center justify-center gap-1.5 ${buttonPatterns.assetInfo}`}
         >
           <Eye className="w-3.5 h-3.5" />
           View
@@ -213,7 +210,7 @@ export function RenderPanel({
         <button
           onClick={onSaveImage}
           disabled={!values.imageSaved}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded bg-white/[0.04] border border-white/[0.08] text-zinc-300 text-xs font-semibold transition-colors hover:bg-white/[0.08] disabled:opacity-30"
+          className={`flex-1 flex items-center justify-center gap-1.5 ${buttonPatterns.assetInfo}`}
         >
           <Save className="w-3.5 h-3.5" />
           Save image

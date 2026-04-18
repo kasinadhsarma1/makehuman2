@@ -536,7 +536,7 @@ export function LeftPanel({
       </div>
 
       {/* Connection mini-panel */}
-      <div className="border-t border-white/[0.07] p-2 flex flex-col gap-1.5 bg-[#111] shrink-0">
+      <div className={panelPatterns.left.connectionBar}>
         {!connected ? (
           <>
             <div className="flex gap-1">

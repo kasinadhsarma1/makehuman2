@@ -47,20 +47,20 @@ export function Viewport({
   return (
     <div className={`flex-1 flex flex-col min-w-0 ${viewportPatterns.container}`}>
       {/* Top info bar */}
-      <div className="flex items-center gap-3 px-3 py-1.5 border-b border-white/[0.06] bg-[#0e0e0e] shrink-0">
+      <div className={viewportPatterns.infoBar}>
         <StatusDot status={status} />
-        <span className="text-xs text-zinc-400 capitalize font-medium">{status}</span>
+        <span className={`${viewportPatterns.infoLabel} capitalize font-medium`}>{status}</span>
 
         {connected && (
           <>
-            <span className="text-zinc-700">|</span>
-            <span className="text-xs text-zinc-400">{appName}</span>
-            <span className="text-zinc-700">|</span>
-            <span className="text-xs text-zinc-300 font-medium">{characterName}</span>
+            <span className={viewportPatterns.infoSeparator}>|</span>
+            <span className={viewportPatterns.infoLabel}>{appName}</span>
+            <span className={viewportPatterns.infoSeparator}>|</span>
+            <span className={viewportPatterns.infoLabelStrong}>{characterName}</span>
             {baseMesh && (
               <>
-                <span className="text-zinc-700">|</span>
-                <span className={`${typographyPatterns.mono}`}>{baseMesh}</span>
+                <span className={viewportPatterns.infoSeparator}>|</span>
+                <span className={typographyPatterns.mono}>{baseMesh}</span>
               </>
             )}
           </>
@@ -69,7 +69,7 @@ export function Viewport({
         <div className="flex-1" />
 
         {connected && (
-          <div className="ml-auto flex items-center gap-1">
+          <div className={viewportPatterns.infoActions}>
             <button
               onClick={onGetChar}
               disabled={loadingGetChar}

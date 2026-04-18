@@ -24,6 +24,7 @@ import {
   buttonPatterns,
   controlPatterns,
   assetPatterns,
+  modellingPatterns,
 } from "@/lib/patterns";
 import { useState } from "react";
 import { Search, Plus, Trash2, Info, Download, Minus } from "lucide-react";
@@ -34,7 +35,7 @@ import type { ExportFormData, ExportType } from "@/components/panels/FilesPanels
 
 function PanelTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-3 py-2 border-b border-white/[0.07] bg-[#0e0e0e] shrink-0">
+    <div className={panelPatterns.panelTitleBar}>
       <p className={panelPatterns.titleTextAlt}>{children}</p>
     </div>
   );
@@ -88,8 +89,8 @@ function ImageGrid({
       {/* Thumbnail grid */}
       <div className="flex-1 overflow-y-auto p-2">
         {items.length === 0 ? (
-          <div className="flex items-center justify-center h-24">
-            <p className="text-xs text-zinc-600 italic text-center">
+          <div className={assetPatterns.grid.emptyHint}>
+            <p className={assetPatterns.grid.emptyHintText}>
               Connect to core to browse assets.
             </p>
           </div>
@@ -99,7 +100,7 @@ function ImageGrid({
               <button
                 key={item.name}
                 onClick={() => onSelect(item.name)}
-                className={`relative aspect-square rounded overflow-hidden border transition-all ${selected === item.name
+                className={`${assetPatterns.grid.item.wrapper} ${selected === item.name
                   ? assetPatterns.grid.item.active
                   : item.active
                     ? assetPatterns.grid.item.highlight
@@ -111,17 +112,17 @@ function ImageGrid({
                   <img
                     src={item.thumb}
                     alt={item.name}
-                    className="w-full h-full object-cover"
+                    className={assetPatterns.grid.image}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-[8px] text-zinc-600 font-mono text-center px-1 leading-tight break-all">
+                    <span className={assetPatterns.grid.item.namePlaceholder}>
                       {item.name}
                     </span>
                   </div>
                 )}
                 {item.active && (
-                  <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-violet-400" />
+                  <span className={assetPatterns.grid.item.activeDot} />
                 )}
               </button>
             ))}
@@ -131,7 +132,7 @@ function ImageGrid({
 
       {/* Action buttons */}
       {(showUse || showDelete || showInfo || showDownload) && (
-        <div className="flex flex-wrap gap-1 p-2 border-t border-white/[0.07] shrink-0">
+        <div className={assetPatterns.grid.actionBar}>
           {showUse && (
             <button
               onClick={() => selected && onUse?.(selected)}
@@ -156,7 +157,7 @@ function ImageGrid({
             <button
               onClick={() => selected && onInfo?.(selected)}
               disabled={!selected}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-white/[0.05] border border-white/[0.08] text-zinc-300 text-[10px] font-semibold transition-colors disabled:opacity-40"
+              className={buttonPatterns.assetInfo}
             >
               <Info className="w-3 h-3" />
               Info
@@ -166,7 +167,7 @@ function ImageGrid({
             <button
               onClick={() => selected && onDownload?.(selected)}
               disabled={!selected}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded bg-white/[0.05] border border-white/[0.08] text-zinc-300 text-[10px] font-semibold transition-colors disabled:opacity-40"
+              className={buttonPatterns.assetInfo}
             >
               <Download className="w-3 h-3" />
               Get
@@ -196,8 +197,8 @@ function MorphSlider({
   onChange: (name: string, val: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 px-3 py-1.5 hover:bg-white/[0.02] rounded">
-      <div className="flex items-center justify-between">
+    <div className={modellingPatterns.slider.row}>
+      <div className={modellingPatterns.slider.header}>
         <span className="text-[10px] text-zinc-300 font-mono truncate max-w-[140px]">
           {target.name}
         </span>
@@ -205,7 +206,7 @@ function MorphSlider({
           {target.value.toFixed(2)}
         </span>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className={modellingPatterns.slider.trackWrapper}>
         <button
           onClick={() => onChange(target.name, Math.max(target.min ?? -1, target.value - 0.05))}
           className={buttonPatterns.icon.tiny}
@@ -260,10 +261,7 @@ function ExportRightContent({
             <button
               key={t}
               onClick={() => onChange({ exportType: t })}
-              className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition-colors ${data.exportType === t
-                ? buttonPatterns.category.active
-                : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] border border-white/[0.06]"
-                }`}
+              className={data.exportType === t ? buttonPatterns.category.active : buttonPatterns.category.inactive}
             >
               {t}
             </button>
@@ -483,7 +481,7 @@ export function ContextPanel({
         </div>
         <div className="flex-1 overflow-y-auto">
           {filtered.length === 0 ? (
-            <p className="text-xs text-zinc-600 italic text-center py-8">
+            <p className={typographyPatterns.hint}>
               {state.morphTargets.length === 0
                 ? "Connect to load morph targets."
                 : "No morphs match filter."}

@@ -23,9 +23,7 @@ import {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] uppercase tracking-widest font-semibold text-zinc-500 mb-1">
-      {children}
-    </p>
+    <p className={typographyPatterns.sectionLabel}>{children}</p>
   );
 }
 
@@ -55,7 +53,7 @@ function TextInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
-      className={`w-full bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40 disabled:opacity-50`}
+      className={controlPatterns.input.base}
     />
   );
 }
@@ -75,7 +73,7 @@ function Checkbox({
     <button
       onClick={() => onChange(!checked)}
       title={tooltip}
-      className="flex items-center gap-2 text-xs text-zinc-300 hover:text-white transition-colors py-0.5"
+      className={buttonPatterns.checkboxRow}
     >
       {checked ? (
         <CheckSquare className="w-3.5 h-3.5 text-violet-400 shrink-0" />
@@ -101,15 +99,15 @@ function ActionBtn({
   disabled?: boolean;
 }) {
   const cls = {
-    default: "bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] text-zinc-300",
-    primary: "bg-violet-700 hover:bg-violet-600 border border-violet-600 text-white",
-    danger: "bg-red-900/30 hover:bg-red-800/50 border border-red-700/30 text-red-300",
+    default: buttonPatterns.formDefault,
+    primary: buttonPatterns.formPrimary,
+    danger:  buttonPatterns.formDanger,
   }[variant];
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors ${cls} disabled:opacity-40`}
+      className={cls}
     >
       {icon}
       {label}
@@ -139,17 +137,17 @@ export function BaseMeshPanel({
             onClick={() => onSelect(m)}
             className={`text-left px-3 py-2 text-sm transition-colors font-mono ${
               selected === m
-                ? "bg-orange-600/70 text-white"
-                : "text-zinc-300 hover:bg-white/[0.05]"
+                ? buttonPatterns.listItem.active
+                : buttonPatterns.listItem.base
             }`}
           >
             {m}
           </button>
         ))}
         {meshes.length === 0 && (
-          <p className="px-3 py-4 text-xs text-zinc-600 italic">
-            No base meshes found.
-          </p>
+          <p className={typographyPatterns.hint}>
+          No base meshes found.
+        </p>
         )}
       </div>
       <ActionBtn
@@ -185,11 +183,11 @@ export function SkinPanel({
             value={filter}
             onChange={(e) => onFilterChange(e.target.value)}
             placeholder="filter skins…"
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40"
+            className={controlPatterns.input.searchInput}
           />
         </div>
       </div>
-      <p className="text-[10px] text-zinc-600 leading-relaxed">
+      <p className={typographyPatterns.infoText}>
         Skin thumbnails appear in the right panel. Use the filter to search
         by material name. Click a skin to preview, then press{" "}
         <span className="text-zinc-400">Use</span> to apply.
@@ -235,7 +233,7 @@ export function LoadFilePanel({
             value={searchText}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="search characters…"
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40"
+            className={controlPatterns.input.searchInput}
           />
         </div>
       </div>
@@ -399,7 +397,7 @@ export function ExportPanel({
             placeholder="~/exports"
           />
           <button
-            className="px-2 py-1.5 rounded bg-white/[0.05] border border-white/[0.08] hover:bg-white/[0.09] transition-colors"
+            className={buttonPatterns.inputAddon}
             title="Select folder"
           >
             <FolderOpen className="w-3.5 h-3.5 text-zinc-400" />
@@ -432,11 +430,7 @@ export function ExportPanel({
             <button
               key={t}
               onClick={() => onChange({ exportType: t })}
-              className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition-colors ${
-                data.exportType === t
-                  ? buttonPatterns.category.active
-                  : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] border border-white/[0.06]"
-              }`}
+              className={data.exportType === t ? buttonPatterns.category.active : buttonPatterns.category.inactive}
             >
               {t}
             </button>
@@ -549,8 +543,7 @@ export function DownloadPanel({
           }
           onClick={onDownloadList}
         />
-        <p className="text-[10px] text-zinc-600 leading-relaxed">
-          Asset lists are needed to load single assets or asset packs. This must
+        <p className={typographyPatterns.infoText}>Asset lists are needed to load single assets or asset packs. This must
           be done once.
         </p>
       </div>
@@ -558,7 +551,7 @@ export function DownloadPanel({
       {/* Single asset */}
       <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.06]">
         <FieldLabel>Single Asset</FieldLabel>
-        <p className="text-[10px] text-zinc-500">Browse in list to find your asset.</p>
+        <p className={typographyPatterns.muted}>Browse in list to find your asset.</p>
         <ActionBtn
           icon={<Search className="w-3.5 h-3.5" />}
           label="Asset Browser"
@@ -570,7 +563,7 @@ export function DownloadPanel({
       {/* Asset pack */}
       <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.06]">
         <FieldLabel>Asset Pack</FieldLabel>
-        <p className="text-[10px] text-zinc-500">
+        <p className={typographyPatterns.muted}>
           Enter or paste an asset pack URL (http/https/ftp):
         </p>
         <TextInput

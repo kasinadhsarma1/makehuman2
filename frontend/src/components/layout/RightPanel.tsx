@@ -62,11 +62,7 @@ function NavButton({
     <button
       title={tip}
       onClick={onClick}
-      className={`w-8 h-8 rounded flex items-center justify-center transition-colors text-xs border ${
-        checkable && checked
-          ? "bg-orange-600/70 text-white border-orange-500/50"
-          : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-200 border-white/[0.06] active:bg-white/[0.12]"
-      }`}
+      className={checkable && checked ? panelPatterns.right.navButtonActive : panelPatterns.right.navButton}
     >
       {icon}
     </button>

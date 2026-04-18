@@ -19,7 +19,20 @@ export const assetPatterns = {
       active: "border-orange-500/70 ring-1 ring-orange-500/30",
       highlight: "border-violet-500/40",
       inactive: "border-white/[0.06] hover:border-white/[0.12]",
+      // Full button wrapper (combines base + active/inactive state) used in ContextPanel image grid
+      wrapper: "relative aspect-square rounded overflow-hidden border transition-all",
+      // Tiny name label inside an empty cell (when no thumbnail is available)
+      namePlaceholder: "text-[8px] text-zinc-600 font-mono text-center px-1 leading-tight break-all",
+      // Dot overlay indicating the item is currently active/applied
+      activeDot: "absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-violet-400",
     },
+
+    // Row of action buttons below the grid (Use / Remove / Info / Get)
+    actionBar: "flex flex-wrap gap-1 p-2 border-t border-white/[0.07] shrink-0",
+
+    // Empty-state hint inside grid scroll area
+    emptyHint: "flex items-center justify-center h-24",
+    emptyHintText: "text-xs text-zinc-600 italic text-center",
 
     // Image / thumbnail inside cell
     image: "w-full h-full object-cover",

@@ -9,6 +9,13 @@ export const viewportPatterns = {
   container: "relative flex-1 bg-[#1a1a1a] overflow-hidden",
   canvas: "w-full h-full block",
 
+  // --- Top info / status bar above the viewport ---
+  infoBar: "flex items-center gap-3 px-3 py-1.5 border-b border-white/[0.06] bg-[#0e0e0e] shrink-0",
+  infoSeparator: "text-zinc-700",
+  infoLabel: "text-xs text-zinc-400",
+  infoLabelStrong: "text-xs text-zinc-300 font-medium",
+  infoActions: "ml-auto flex items-center gap-1",
+
   // --- Overlay HUD elements ---
   hud: {
     wrapper: "absolute inset-0 pointer-events-none",

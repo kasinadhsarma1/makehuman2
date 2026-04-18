@@ -12,6 +12,15 @@ export const typographyPatterns = {
   // Supporting / helper text
   muted: "text-xs text-zinc-500",
 
+  // Italic placeholder / hint text (empty states, helper messages)
+  hint: "text-[10px] text-zinc-600 italic text-center",
+
+  // Small descriptive text (not italic, slightly brighter)
+  infoText: "text-[10px] text-zinc-500 leading-relaxed",
+
+  // Tiny uppercase section label (mimics `label` but no tracking)
+  sectionLabel: "text-[10px] uppercase tracking-widest font-semibold text-zinc-500 mb-1",
+
   // Monospace readout (values, coordinates)
   mono: "text-[10px] font-mono text-zinc-400",
 

@@ -9,7 +9,7 @@
  *   5 teeth   | 6 tongue | 7 proxy (topology)
  */
 
-import { typographyPatterns, controlPatterns } from "@/lib/patterns";
+import { typographyPatterns, controlPatterns, buttonPatterns } from "@/lib/patterns";
 import { Search, RefreshCw, Trash2, Info, Plus } from "lucide-react";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -73,13 +73,13 @@ export function EquipmentPanel({
               value={filter}
               onChange={(e) => onFilterChange(e.target.value)}
               placeholder={`filter ${equipType}…`}
-              className={`w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-violet-500/40`}
+              className={controlPatterns.input.searchInput}
             />
           </div>
           <button
             onClick={onRefresh}
             title="Refresh"
-            className="px-2 py-1.5 rounded bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] transition-colors"
+            className={buttonPatterns.refreshAddon}
           >
             <RefreshCw className="w-3.5 h-3.5 text-zinc-400" />
           </button>
@@ -101,19 +101,17 @@ export function EquipmentPanel({
             <button
               key={item.name}
               onClick={() => onSelectItem(item.name)}
-              className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left transition-colors ${
+              className={`${
                 selectedItem === item.name
-                  ? "bg-orange-600/50 text-white"
+                  ? buttonPatterns.equipItem.selected
                   : item.equipped
-                  ? "bg-violet-900/30 text-violet-200 hover:bg-violet-900/40"
-                  : "text-zinc-300 hover:bg-white/[0.04]"
+                  ? buttonPatterns.equipItem.equipped
+                  : buttonPatterns.equipItem.base
               }`}
             >
               <span className="flex-1 truncate font-mono">{item.name}</span>
               {item.equipped && (
-                <span className="text-[9px] bg-violet-700/50 text-violet-300 px-1.5 py-0.5 rounded-full shrink-0">
-                  on
-                </span>
+                <span className={buttonPatterns.equippedBadge}>on</span>
               )}
             </button>
           ))
@@ -125,7 +123,7 @@ export function EquipmentPanel({
         <button
           onClick={() => selectedItem && onUse(selectedItem)}
           disabled={!selectedItem}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-violet-700 hover:bg-violet-600 text-white text-xs font-semibold transition-colors disabled:opacity-40"
+          className={buttonPatterns.assetUse}
         >
           <Plus className="w-3.5 h-3.5" />
           Use
@@ -133,7 +131,7 @@ export function EquipmentPanel({
         <button
           onClick={() => selectedItem && onRemove(selectedItem)}
           disabled={!selectedItem}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-red-900/30 hover:bg-red-800/50 border border-red-700/30 text-red-300 text-xs font-semibold transition-colors disabled:opacity-40"
+          className={buttonPatterns.assetRemove}
         >
           <Trash2 className="w-3.5 h-3.5" />
           Remove
@@ -141,7 +139,7 @@ export function EquipmentPanel({
         <button
           onClick={() => selectedItem && onInfo(selectedItem)}
           disabled={!selectedItem}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-white/[0.05] border border-white/[0.08] text-zinc-300 text-xs font-semibold transition-colors disabled:opacity-40"
+          className={buttonPatterns.assetInfo}
         >
           <Info className="w-3.5 h-3.5" />
           Info

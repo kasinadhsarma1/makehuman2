@@ -8,7 +8,7 @@
  * Mirrors: RandomForm, ScaleComboArray, model_buttons from MHMainWindow
  */
 
-import { typographyPatterns, controlPatterns, panelPatterns } from "@/lib/patterns";
+import { typographyPatterns, controlPatterns, panelPatterns, buttonPatterns } from "@/lib/patterns";
 import { useState } from "react";
 import {
   RotateCcw, ArrowLeftRight, Shuffle, ChevronRight, ChevronDown,
@@ -19,9 +19,7 @@ import {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] uppercase tracking-widest font-semibold text-zinc-500 mb-1">
-      {children}
-    </p>
+    <p className={typographyPatterns.sectionLabel}>{children}</p>
   );
 }
 
@@ -48,7 +46,7 @@ function Checkbox({
     <button
       onClick={() => onChange(!checked)}
       title={tooltip}
-      className="flex items-center gap-2 text-xs text-zinc-300 hover:text-white transition-colors py-0.5"
+      className={buttonPatterns.checkboxRow}
     >
       {checked ? (
         <CheckSquare className="w-3.5 h-3.5 text-violet-400 shrink-0" />
@@ -87,7 +85,7 @@ function SimpleSlider({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-orange-500 h-1.5"
+        className={controlPatterns.range.base}
       />
     </div>
   );
@@ -127,7 +125,7 @@ function CategoryTree({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="filter categories…"
-          className="w-full bg-white/[0.04] border border-white/[0.08] rounded pl-7 pr-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-violet-500/40"
+          className={controlPatterns.input.searchInput}
         />
       </div>
       <div className="rounded border border-white/[0.06] bg-black/20 overflow-hidden max-h-56 overflow-y-auto">
@@ -161,11 +159,10 @@ function CategoryTree({
                     <button
                       key={sub}
                       onClick={() => onSelect(sub)}
-                      className={`w-full text-left px-6 py-1 text-xs transition-colors ${
-                        selected === sub
-                          ? "bg-orange-600/60 text-white"
-                          : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
-                      }`}
+                      className={`w-full text-left px-6 py-1 text-xs transition-colors ${selected === sub
+                          ? buttonPatterns.treeItemActive
+                          : buttonPatterns.treeItemBase
+                        }`}
                     >
                       {sub}
                     </button>
@@ -204,11 +201,10 @@ function ModelButtons({
           key={i}
           onClick={btn.action}
           title={btn.tip}
-          className={`w-8 h-8 rounded flex items-center justify-center transition-colors text-xs border ${
-            btn.check && btn.active
-              ? "bg-orange-600/70 border-orange-500/50 text-white"
-              : "bg-white/[0.04] border-white/[0.06] text-zinc-400 hover:bg-white/[0.08] hover:text-zinc-200"
-          }`}
+          className={btn.check && btn.active
+            ? buttonPatterns.iconToggle.active
+            : buttonPatterns.iconToggle.base
+          }
         >
           {btn.icon}
         </button>
@@ -316,11 +312,10 @@ export function RandomizePanel({
             <button
               key={g}
               onClick={() => toggleGroup(g)}
-              className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors ${
-                values.groups[g]
-                  ? "bg-orange-600/30 text-orange-200"
-                  : "text-zinc-500 hover:bg-white/[0.03]"
-              }`}
+              className={values.groups[g]
+                ? buttonPatterns.groupRow.active
+                : buttonPatterns.groupRow.base
+              }
             >
               {values.groups[g] ? (
                 <CheckSquare className="w-3 h-3 text-orange-400 shrink-0" />
@@ -368,7 +363,7 @@ export function RandomizePanel({
       <button
         onClick={onApply}
         disabled={loading}
-        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-violet-700 hover:bg-violet-600 text-white text-xs font-semibold transition-colors disabled:opacity-40 mt-1"
+        className={buttonPatterns.fullPrimaryLg}
       >
         <Shuffle className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
         {loading ? "Randomizing…" : "Randomize"}
