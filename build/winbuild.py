@@ -250,7 +250,8 @@ class winBuilder():
                         dontcreate = True
 
                 if not dontcreate:
-                    self.mkdir(os.path.join(destdir, elem))
+                    if os.path.isdir(destdir):
+                        self.mkdir(os.path.join(destdir, elem))
 
             if os.path.isdir(destdir):
                 for elem in files:
