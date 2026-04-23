@@ -298,6 +298,7 @@ class MHGraphicWindow(QWidget):
 
     def objInfos(self,vlayout):
         self.sizeInfo = QLabel()
+        self.sizeInfo.setObjectName("sizeinfo")
         self.sizeInfo.setMinimumSize(140, 20)
         self.sizeInfo.setWordWrap(True)
         if self.glob.baseClass is not None:

@@ -9,7 +9,7 @@ import sys
 from time import sleep
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QEventLoop
+from PySide6.QtCore import QEventLoop, QDir
 
 sys.path.insert(0, ".") # used for windows
 
@@ -93,7 +93,10 @@ def main():
     if args.verbose & 2:
         print (env)
 
+    # get themes, also supply user-themes path which can be used for icons
+    #
     theme = env.existDataFile("themes", env.config["theme"])
+    QDir.setSearchPaths("themes", [env.path_userdata + "/themes"])
 
     app = MHApplication(glob, sys.argv)
     glob.setApplication(app)
